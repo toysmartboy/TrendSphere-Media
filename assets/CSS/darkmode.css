@@ -1,0 +1,684 @@
+/* DARK MODE */
+body.dark-mode{
+    background: #111111;
+    color: #ffffff;
+}
+
+body.dark-mode .header{
+    background: #222222;
+}
+
+body.dark-mode .nav-links{
+    background: #222222;
+}
+
+body.dark-mode .logo a{
+    color: #ffffff;
+}
+
+body.dark-mode .nav-links a{
+    color: #ffffff;
+}
+
+body.dark-mode .nav-links a:hover{
+    color: var(--accent-color);
+}
+
+body.dark-mode .hero .hero-content p{
+    color: #ffffff;
+}
+
+body.dark-mode .hero .hero-content .trending-tags span{
+    background: #222222;
+}
+
+body.dark-mode .news-slider{
+    background: #222222;
+}
+
+body.dark-mode .breaking-news .slider-track span{
+    color: #ffffff;
+}
+
+
+body.dark-mode #details-title,
+body.dark-mode #details-author,
+body.dark-mode #details-date{
+    color: #ffffff;
+}
+
+body.dark-mode .share-btn{
+    background: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+body.dark-mode .share-btn:hover{
+    background: var(--accent-color);
+    color: var(--primary-color);
+}
+
+
+/*=================================================
+        AUTHENTICATION DARK MODE
+=================================================*/
+
+body.dark-mode .auth-page{
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(108, 99, 255, 0.16),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at bottom right,
+            rgba(108, 99, 255, 0.12),
+            transparent 35%
+        ),
+        #111318;
+}
+
+
+body.dark-mode .auth-container{
+    background: #1b1d23;
+    border-color: #2d3038;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+
+/*=================================================
+              AUTH HEADER
+=================================================*/
+
+body.dark-mode .auth-header h1{
+    color: #f5f5f5;
+}
+
+
+body.dark-mode .auth-header p{
+    color: #a7a9b1;
+}
+
+
+/*=================================================
+              AUTH LABELS
+=================================================*/
+
+body.dark-mode .auth-input-group label{
+    color: #eeeeee;
+}
+
+
+/*=================================================
+              AUTH INPUT
+=================================================*/
+
+body.dark-mode .auth-input{
+    background: #15171c;
+    border-color: #343741;
+}
+
+
+body.dark-mode .auth-input:focus-within{
+    border-color: #7c74ff;
+
+    box-shadow:
+        0 0 0 4px rgba(108, 99, 255, 0.14);
+}
+
+
+body.dark-mode .auth-input > i{
+    color: #9699a3;
+}
+
+
+body.dark-mode .auth-input:focus-within > i{
+    color: #8b84ff;
+}
+
+
+body.dark-mode .auth-input input{
+    color: #f5f5f5;
+}
+
+
+body.dark-mode .auth-input input::placeholder{
+    color: #777b86;
+}
+
+
+/*=================================================
+              PASSWORD TOGGLE
+=================================================*/
+
+body.dark-mode .toggle-password{
+    color: #9699a3;
+}
+
+
+body.dark-mode .toggle-password:hover{
+    background: #292c34;
+    color: #8b84ff;
+}
+
+
+/*=================================================
+              CHECKBOX
+=================================================*/
+
+body.dark-mode .auth-checkbox{
+    color: #a7a9b1;
+}
+
+
+/*=================================================
+              FORGOT PASSWORD
+=================================================*/
+
+body.dark-mode .auth-forgot a{
+    color: #8b84ff;
+}
+
+
+/*=================================================
+              AUTH MESSAGE
+=================================================*/
+
+body.dark-mode .auth-message.success{
+    background: rgba(40, 167, 69, 0.12);
+    border-color: rgba(40, 167, 69, 0.35);
+    color: #7ee29b;
+}
+
+
+body.dark-mode .auth-message.error{
+    background: rgba(217, 83, 79, 0.12);
+    border-color: rgba(217, 83, 79, 0.35);
+    color: #ff8580;
+}
+
+
+/*=================================================
+              AUTH SUBMIT
+=================================================*/
+
+body.dark-mode .auth-submit{
+    box-shadow:
+        0 8px 20px rgba(108, 99, 255, 0.25);
+}
+
+
+body.dark-mode .auth-submit:hover{
+    box-shadow:
+        0 12px 28px rgba(108, 99, 255, 0.35);
+}
+
+
+/*=================================================
+              AUTH FOOTER
+=================================================*/
+
+body.dark-mode .auth-footer p{
+    color: #a7a9b1;
+}
+
+
+body.dark-mode .auth-footer p a{
+    color: #8b84ff;
+}
+
+
+body.dark-mode .back-home{
+    color: #9699a3;
+}
+
+
+body.dark-mode .back-home:hover{
+    color: #8b84ff;
+}
+
+
+/*=================================================
+              ACCOUNT NAVIGATION
+=================================================*/
+
+body.dark-mode .account-nav-btn{
+    background: #1b1d23;
+    border-color: #343741;
+    color: #eeeeee;
+}
+
+
+body.dark-mode .account-nav-btn:hover{
+    border-color: #7c74ff;
+    color: #8b84ff;
+
+    box-shadow:
+        0 5px 15px rgba(108, 99, 255, 0.20);
+}
+
+
+/*=================================================
+              ACCOUNT MENU
+=================================================*/
+
+body.dark-mode .account-menu{
+    background: #1b1d23;
+    border-color: #343741;
+
+    box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.45);
+}
+
+
+body.dark-mode .account-menu::before{
+    background: #1b1d23;
+    border-color: #343741;
+}
+
+
+/*=================================================
+              ACCOUNT HEADER
+=================================================*/
+
+body.dark-mode .account-menu-header strong{
+    color: #f5f5f5;
+}
+
+
+body.dark-mode .account-menu-header span{
+    color: #9699a3;
+}
+
+
+/*=================================================
+              ACCOUNT DIVIDER
+=================================================*/
+
+body.dark-mode .account-menu-divider{
+    background: #30333b;
+}
+
+
+/*=================================================
+              ACCOUNT MENU ITEMS
+=================================================*/
+
+body.dark-mode .account-menu-item{
+    color: #eeeeee;
+}
+
+
+body.dark-mode .account-menu-item i{
+    color: #9699a3;
+}
+
+
+body.dark-mode .account-menu-item:hover{
+    background: rgba(108, 99, 255, 0.13);
+    color: #8b84ff;
+}
+
+
+body.dark-mode .account-menu-item:hover i{
+    color: #8b84ff;
+}
+
+
+/*=================================================
+              SIGN OUT
+=================================================*/
+
+body.dark-mode .account-logout{
+    color: #ff8580 !important;
+}
+
+
+body.dark-mode .account-logout i{
+    color: #ff8580 !important;
+}
+
+
+body.dark-mode .account-logout:hover{
+    background: rgba(217, 83, 79, 0.12) !important;
+}
+
+
+/*=================================================
+              MOBILE ACCOUNT MENU
+=================================================*/
+
+@media(max-width: 600px){
+
+    body.dark-mode .account-menu{
+        background: #1b1d23;
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+/*=================================================
+              PROFILE DARK MODE
+=================================================*/
+
+body.dark-mode .profile-page{
+    background:
+        radial-gradient(
+            circle at top left,
+            rgba(108, 99, 255, 0.16),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at bottom right,
+            rgba(108, 99, 255, 0.12),
+            transparent 35%
+        ),
+        #111318;
+}
+
+
+/*=================================================
+              PROFILE CONTAINER
+=================================================*/
+
+body.dark-mode .profile-container{
+    background: #1b1d23;
+
+    border-color: #2d3038;
+
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+
+/*=================================================
+              PROFILE HEADER
+=================================================*/
+
+body.dark-mode .profile-header h1{
+    color: #f5f5f5;
+}
+
+
+body.dark-mode .profile-header p{
+    color: #a7a9b1;
+}
+
+
+/*=================================================
+              PROFILE CARD
+=================================================*/
+
+body.dark-mode .profile-card{
+    background: #15171c;
+
+    border-color: #343741;
+}
+
+
+body.dark-mode .profile-label{
+    color: #9699a3;
+}
+
+
+body.dark-mode .profile-info-item{
+    border-color: #30333b;
+}
+
+
+body.dark-mode .profile-info-item strong{
+    color: #f5f5f5;
+}
+
+
+/*=================================================
+              PROFILE AVATAR
+=================================================*/
+
+body.dark-mode .profile-avatar{
+    box-shadow:
+        0 8px 20px rgba(108, 99, 255, 0.25);
+}
+
+
+/*=================================================
+              PROFILE ACTIONS
+=================================================*/
+
+body.dark-mode .profile-action{
+    background: #1b1d23;
+
+    border-color: #343741;
+
+    color: #eeeeee;
+}
+
+
+body.dark-mode .profile-action:hover{
+    background: #22252d;
+
+    border-color: #7c74ff;
+
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+
+body.dark-mode .profile-action > i:first-child{
+    background: rgba(108, 99, 255, 0.14);
+
+    color: #8b84ff;
+}
+
+
+body.dark-mode .profile-action strong{
+    color: #f5f5f5;
+}
+
+
+body.dark-mode .profile-action span{
+    color: #9699a3;
+}
+
+
+body.dark-mode .profile-action > i:last-child{
+    color: #777b86;
+}
+
+
+/*=================================================
+              EDIT / PASSWORD FORMS
+=================================================*/
+
+body.dark-mode .profile-edit-form,
+body.dark-mode .profile-password-form{
+    background: #15171c;
+
+    border-color: #343741;
+}
+
+
+body.dark-mode .profile-edit-input-group label{
+    color: #eeeeee;
+}
+
+
+body.dark-mode .profile-edit-input-group input{
+    background: #111318;
+
+    border-color: #343741;
+
+    color: #f5f5f5;
+}
+
+
+body.dark-mode .profile-edit-input-group input::placeholder{
+    color: #777b86;
+}
+
+
+body.dark-mode .profile-edit-input-group input:focus{
+    border-color: #7c74ff;
+
+    box-shadow:
+        0 0 0 4px rgba(108, 99, 255, 0.14);
+}
+
+
+/*=================================================
+              PASSWORD TOGGLE
+=================================================*/
+
+body.dark-mode .profile-password-input button{
+    color: #9699a3;
+}
+
+
+body.dark-mode .profile-password-input button:hover{
+    color: #8b84ff;
+}
+
+
+/*=================================================
+              SAVE / CANCEL BUTTONS
+=================================================*/
+
+body.dark-mode .profile-save-btn{
+    box-shadow:
+        0 8px 20px rgba(108, 99, 255, 0.20);
+}
+
+
+body.dark-mode .profile-save-btn:hover{
+    box-shadow:
+        0 12px 28px rgba(108, 99, 255, 0.30);
+}
+
+
+body.dark-mode .profile-cancel-btn{
+    background: #292c34;
+
+    color: #eeeeee;
+}
+
+
+body.dark-mode .profile-cancel-btn:hover{
+    background: #343741;
+}
+
+
+/*=================================================
+              ACCOUNT INFORMATION
+=================================================*/
+
+body.dark-mode .profile-account-info{
+    background: #15171c;
+
+    border-color: #343741;
+}
+
+
+body.dark-mode .profile-section-icon{
+    background: rgba(108, 99, 255, 0.14);
+
+    color: #8b84ff;
+}
+
+
+body.dark-mode .profile-section-title h2{
+    color: #f5f5f5;
+}
+
+
+body.dark-mode .profile-section-title p{
+    color: #9699a3;
+}
+
+
+body.dark-mode .profile-detail-item{
+    background: #1b1d23;
+
+    border-color: #343741;
+}
+
+
+body.dark-mode .profile-detail-item span{
+    color: #9699a3;
+}
+
+
+body.dark-mode .profile-detail-item strong{
+    color: #eeeeee;
+}
+
+
+/*=================================================
+              ACCOUNT STATUS
+=================================================*/
+
+body.dark-mode .account-status{
+    color: #7ee29b !important;
+}
+
+
+/*=================================================
+              PROFILE MESSAGE
+=================================================*/
+
+body.dark-mode .profile-message.success{
+    background: rgba(40, 167, 69, 0.12);
+
+    border-color: rgba(40, 167, 69, 0.35);
+
+    color: #7ee29b;
+}
+
+
+body.dark-mode .profile-message.error{
+    background: rgba(217, 83, 79, 0.12);
+
+    border-color: rgba(217, 83, 79, 0.35);
+
+    color: #ff8580;
+}
+
+
+/*=================================================
+              SIGN OUT
+=================================================*/
+
+body.dark-mode .profile-logout{
+    background: rgba(217, 83, 79, 0.10);
+
+    border-color: rgba(217, 83, 79, 0.30);
+
+    color: #ff8580;
+}
+
+
+body.dark-mode .profile-logout:hover{
+    background: rgba(217, 83, 79, 0.16);
+}
+
+
+/*=================================================
+              BACK HOME
+=================================================*/
+
+body.dark-mode .profile-back-home{
+    color: #9699a3;
+}
+
+
+body.dark-mode .profile-back-home:hover{
+    color: #8b84ff;
+}

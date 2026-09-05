@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Details | TrendSphere Media</title>
+    <!-- =========================================
+     DYNAMIC ARTICLE SEO
+========================================= -->
+
+<meta
+    name="description"
+    id="seo-description"
+    content="Read the latest story on TrendSphere Media."
+>
+
+<link
+    rel="canonical"
+    id="seo-canonical"
+    href=""
+>
+
+
+<!-- =========================================
+     OPEN GRAPH
+========================================= -->
+
+<meta
+    property="og:type"
+    content="article"
+>
+
+<meta
+    property="og:title"
+    id="og-title"
+    content="TrendSphere Media"
+>
+
+<meta
+    property="og:description"
+    id="og-description"
+    content="Read the latest story on TrendSphere Media."
+>
+
+<meta
+    property="og:image"
+    id="og-image"
+    content=""
+>
+
+<meta
+    property="og:url"
+    id="og-url"
+    content=""
+>
+
+<meta
+    property="og:site_name"
+    content="TrendSphere Media"
+>
+
+
+<!-- =========================================
+     X / TWITTER
+========================================= -->
+
+<meta
+    name="twitter:card"
+    content="summary_large_image"
+>
+
+<meta
+    name="twitter:title"
+    id="twitter-title"
+    content="TrendSphere Media"
+>
+
+<meta
+    name="twitter:description"
+    id="twitter-description"
+    content="Read the latest story on TrendSphere Media."
+>
+
+<meta
+    name="twitter:image"
+    id="twitter-image"
+    content=""
+>
+    <link rel="stylesheet" href="assets/CSS/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <!--Website Icon-->
+    <link rel="icon" href="assets/Images/icons/TrendSphere Media Logo ICON.jpg">
+</head>
+<body>
+    <header class="details-header">
+        <div class="container">
+            <a href="index.html" class="back-btn">
+                <i class="bx bx-arrow-back"></i>
+                Back to Home
+            </a>
+        </div>
+    </header>
+    <!--NEWS DETAILS-->
+    <section class="news-details">
+        <div class="container">
+            <img src="" alt="NewsImage" id="details-image">
+            <div class="details-content">
+                <span id="details-source" class="details-source"></span>
+                <h1 id="details-title"></h1>
+                <div class="details-info">
+                    <span id="details-author"></span>
+                    <span id="details-date"></span>
+                    <span class="reading-time" id="reading-time">
+                        <i class="bx bx-time-five"></i>
+                        <span>1 min read</span>
+                    </span>
+                </div>
+                <p id="details-description"></p>
+                <p id="details-content-text"></p>
+                <a href="#" id="details-link" target="_blank" class="read-original">Read Original Article</a>
+                <button id="share-article" class="share-btn">
+                <i class="bx bx-share-alt"></i>
+                 Share
+                </button>
+                <div class="share-menu" id="share-menu">
+
+                    <button id="share-whatsapp">
+                        <i class="bx bxl-whatsapp"></i>
+                        WhatsApp
+                    </button>
+                    <button id="share-facebook">
+                        <i class="bx bxl-facebook"></i>
+                        Facebook
+                    </button>
+                    <button id="share-x">
+                        <i class="bx bxl-twitter"></i>
+                        Twitter
+                    </button>
+                    <button id="share-instagram">
+                        <i class="bx bxl-instagram"></i>
+                        Instagram
+                    </button>
+                    <button id="share-telegram">
+                        <i class="bx bxl-telegram"></i>
+                        Telegram
+                    </button>
+                    <button id="copy-article-link">
+                        <i class="bx bx-link"></i>
+                        Copy Link
+                    </button>
+                </div>
+                <button id="save-article" class="save-article">
+                    <i class="bx bx-bookmark"></i>
+                    <span>Save Article</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+
+<!-- =========================================
+     NEWS DETAILS - IN ARTICLE AD
+========================================= -->
+
+<section
+    class="article-ad section"
+    aria-label="Advertisement"
+>
+
+    <div class="container">
+
+        <div class="article-ad-label">
+            Advertisement
+        </div>
+
+        <div class="article-ad-container">
+
+            <div class="article-ad-content">
+
+                <i class="bx bx-broadcast"></i>
+
+                <span>
+                    Advertisement Space
+                </span>
+
+                <p>
+                    Your advertisement could appear here.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+<!--==================================================
+                COMMENTS SECTION
+===================================================-->
+
+<section class="comments-section">
+    <div class="container">
+
+        <h2>Comments</h2>
+        <p class="comments-subtitle">
+            Share your thoughts about this story.
+        </p>
+
+        <!-- COMMENT FORM -->
+        <div class="comment-form">
+
+            <input
+                type="text"
+                id="comment-name"
+                placeholder="Your name"
+                maxlength="50"
+            >
+
+            <textarea
+                id="comment-text"
+                placeholder="Write your comment..."
+                maxlength="1000"
+                rows="5"
+            ></textarea>
+
+            <button
+                type="button"
+                id="submit-comment"
+            >
+                <i class="bx bx-send"></i>
+                Post Comment
+            </button>
+
+            <p
+                id="comment-message"
+                class="comment-message"
+            ></p>
+
+        </div>
+
+        <!-- COMMENTS COUNT -->
+        <div class="comments-header">
+            <h3>
+                <span id="comments-count">0</span>
+                Comments
+            </h3>
+        </div>
+
+        <!-- COMMENTS LIST -->
+        <div
+            id="comments-container"
+            class="comments-container"
+        ></div>
+
+        <!-- EMPTY STATE -->
+        <div
+            id="comments-empty"
+            class="comments-empty"
+            style="display: none;"
+        >
+            <i class="bx bx-message-rounded-dots"></i>
+            <p>No comments yet.</p>
+            <span>Be the first to share your thoughts.</span>
+        </div>
+
+    </div>
+</section>
+    <!--RELATED NEWS-->
+    <section class="related-news">
+        <div class="container">
+            <h2>Related News</h2>
+             <p>You may also like</p>
+            <div id="related-news-container" class="related-grid"></div>
+        </div>
+        <button id="load-more-related" class="load-more-related"> Load More </button>
+    </section>
+    <div class="copy-toast" id="copy-toast">
+    <i class="bx bx-check-circle"></i>
+    <span>Article link copied!</span>
+</div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/JavaScript/supabase.js"></script>
+ <script src="assets/JavaScript/data-cleanup.js"></script>
+<script src="assets/JavaScript/news-details.js"></script>
+<script src="assets/JavaScript/darkmode.js"></script>
+
+</html>

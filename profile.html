@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Profile | TrendSphere Media</title>
+
+    <!-- Website Icon -->
+    <link
+        rel="icon"
+        href="assets/Images/icons/TrendSphere Media Logo ICON.jpg"
+    >
+
+    <!-- Website CSS -->
+    <link
+        rel="stylesheet"
+        href="assets/CSS/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="assets/CSS/responsive.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="assets/CSS/darkmode.css"
+    >
+
+    <!-- Boxicons -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!--===============================================
+                    PROFILE PAGE
+    ================================================-->
+
+    <main class="profile-page">
+
+
+        <div class="profile-container">
+
+
+            <!--===========================================
+                    PROFILE HEADER
+            ===========================================-->
+
+            <div class="profile-header">
+
+
+                <a
+                    href="index.html"
+                    class="profile-logo"
+                >
+
+                    <img
+                        src="assets/Images/Logos/TrendSphere Media Logo logo.png"
+                        alt="TrendSphere Media"
+                    >
+
+                </a>
+
+
+                <h1>
+                    My Profile
+                </h1>
+
+
+                <p>
+                    Manage your TrendSphere Media account.
+                </p>
+
+
+            </div>
+
+
+
+            <!--===========================================
+                    PROFILE CARD
+            ===========================================-->
+
+            <section class="profile-card">
+
+
+                <!-- PROFILE AVATAR -->
+
+                <div class="profile-avatar">
+
+                    <i class="bx bx-user"></i>
+
+                </div>
+
+
+
+                <!-- USER INFORMATION -->
+
+                <div class="profile-info">
+
+
+                    <div class="profile-info-item">
+
+                        <span class="profile-label">
+                            Full Name
+                        </span>
+
+                        <strong id="profile-full-name">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="profile-info-item">
+
+                        <span class="profile-label">
+                            Username
+                        </span>
+
+                        <strong id="profile-username">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+
+                    <div class="profile-info-item">
+
+                        <span class="profile-label">
+                            Email Address
+                        </span>
+
+                        <strong id="profile-email">
+                            Loading...
+                        </strong>
+
+                    </div>
+
+
+
+                </div>
+
+
+            </section>
+
+<!--===========================================
+        EDIT PROFILE
+===========================================-->
+
+<section class="profile-edit-section">
+
+    <button
+        type="button"
+        id="edit-profile-btn"
+        class="profile-action"
+    >
+
+        <i class="bx bx-edit"></i>
+
+        <div>
+
+            <strong>
+                Edit Profile
+            </strong>
+
+            <span>
+                Update your name and username
+            </span>
+
+        </div>
+
+        <i class="bx bx-chevron-right"></i>
+
+    </button>
+
+
+    <!-- EDIT PROFILE FORM -->
+
+    <form
+        id="edit-profile-form"
+        class="profile-edit-form hidden"
+    >
+
+        <div class="profile-edit-input-group">
+
+            <label for="edit-full-name">
+                Full Name
+            </label>
+
+            <input
+                type="text"
+                id="edit-full-name"
+                placeholder="Enter your full name"
+                required
+            >
+
+        </div>
+
+
+        <div class="profile-edit-input-group">
+
+            <label for="edit-username">
+                Username
+            </label>
+
+            <input
+                type="text"
+                id="edit-username"
+                placeholder="Enter your username"
+                required
+            >
+
+        </div>
+
+
+        <div
+            id="edit-profile-message"
+            class="profile-message"
+            role="alert"
+        ></div>
+
+
+        <div class="profile-edit-buttons">
+
+            <button
+                type="submit"
+                id="save-profile-btn"
+                class="profile-save-btn"
+            >
+
+                <i class="bx bx-save"></i>
+
+                Save Changes
+
+            </button>
+
+
+            <button
+                type="button"
+                id="cancel-edit-profile"
+                class="profile-cancel-btn"
+            >
+
+                Cancel
+
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+<!--===========================================
+        CHANGE PASSWORD
+===========================================-->
+
+<section class="profile-password-section">
+
+    <button
+        type="button"
+        id="change-password-btn"
+        class="profile-action"
+    >
+
+        <i class="bx bx-lock-alt"></i>
+
+        <div>
+
+            <strong>
+                Change Password
+            </strong>
+
+            <span>
+                Update your account password
+            </span>
+
+        </div>
+
+        <i class="bx bx-chevron-right"></i>
+
+    </button>
+
+
+    <!-- CHANGE PASSWORD FORM -->
+
+    <form
+        id="change-password-form"
+        class="profile-password-form hidden"
+    >
+
+        <!-- NEW PASSWORD -->
+
+        <div class="profile-edit-input-group">
+
+            <label for="new-password">
+                New Password
+            </label>
+
+            <div class="profile-password-input">
+
+                <input
+                    type="password"
+                    id="new-password"
+                    placeholder="Enter your new password"
+                    autocomplete="new-password"
+                    required
+                >
+
+                <button
+                    type="button"
+                    id="toggle-new-password"
+                    aria-label="Show password"
+                >
+
+                    <i class="bx bx-show"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- CONFIRM PASSWORD -->
+
+        <div class="profile-edit-input-group">
+
+            <label for="confirm-new-password">
+                Confirm New Password
+            </label>
+
+            <div class="profile-password-input">
+
+                <input
+                    type="password"
+                    id="confirm-new-password"
+                    placeholder="Confirm your new password"
+                    autocomplete="new-password"
+                    required
+                >
+
+                <button
+                    type="button"
+                    id="toggle-confirm-new-password"
+                    aria-label="Show password"
+                >
+
+                    <i class="bx bx-show"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- MESSAGE -->
+
+        <div
+            id="change-password-message"
+            class="profile-message"
+            role="alert"
+        ></div>
+
+
+        <!-- BUTTONS -->
+
+        <div class="profile-edit-buttons">
+
+            <button
+                type="submit"
+                id="save-password-btn"
+                class="profile-save-btn"
+            >
+
+                <i class="bx bx-lock-alt"></i>
+
+                Update Password
+
+            </button>
+
+
+            <button
+                type="button"
+                id="cancel-password"
+                class="profile-cancel-btn"
+            >
+
+                Cancel
+
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
+
+            <!--===========================================
+                    PROFILE ACTIONS
+            ===========================================-->
+
+            <section class="profile-actions">
+
+
+                <a
+                    href="save-articles.html"
+                    class="profile-action"
+                >
+
+                    <i class="bx bx-bookmark"></i>
+
+                    <div>
+
+                        <strong>
+                            Saved Articles
+                        </strong>
+
+                        <span>
+                            View your saved news articles
+                        </span>
+
+                    </div>
+
+                    <i class="bx bx-chevron-right"></i>
+
+                </a>
+
+
+
+                <a
+                    href="reading-history.html"
+                    class="profile-action"
+                >
+
+                    <i class="bx bx-history"></i>
+
+                    <div>
+
+                        <strong>
+                            Reading History
+                        </strong>
+
+                        <span>
+                            View articles you have read
+                        </span>
+
+                    </div>
+
+                    <i class="bx bx-chevron-right"></i>
+
+                </a>
+
+
+            </section>
+            <!--===========================================
+        ACCOUNT INFORMATION
+===========================================-->
+
+<section class="profile-account-info">
+
+    <div class="profile-section-title">
+
+        <div class="profile-section-icon">
+            <i class="bx bx-calendar"></i>
+        </div>
+
+        <div>
+            <h2>
+                Account Information
+            </h2>
+
+            <p>
+                Information about your TrendSphere Media account.
+            </p>
+        </div>
+
+    </div>
+
+
+    <div class="profile-details">
+
+        <!-- ACCOUNT CREATED -->
+
+        <div class="profile-detail-item">
+
+            <span>
+                Account Created
+            </span>
+
+            <strong id="profile-created-at">
+                Loading...
+            </strong>
+
+        </div>
+
+
+        <!-- ACCOUNT STATUS -->
+
+        <div class="profile-detail-item">
+
+            <span>
+                Account Status
+            </span>
+
+            <strong
+                id="profile-account-status"
+                class="account-status"
+            >
+                Active
+            </strong>
+
+        </div>
+
+
+        <!-- EMAIL STATUS -->
+
+        <div class="profile-detail-item">
+
+            <span>
+                Email Status
+            </span>
+
+            <strong
+                id="profile-email-status"
+                class="account-status"
+            >
+                Verified
+            </strong>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+            <!--===========================================
+                    PROFILE MESSAGE
+            ===========================================-->
+
+            <div
+                id="profile-message"
+                class="profile-message"
+                role="alert"
+            ></div>
+
+
+
+            <!--===========================================
+                    SIGN OUT
+            ===========================================-->
+
+            <button
+                type="button"
+                id="profile-logout"
+                class="profile-logout"
+            >
+
+                <i class="bx bx-log-out"></i>
+
+                Sign Out
+
+            </button>
+
+
+
+            <!--===========================================
+                    BACK HOME
+            ===========================================-->
+
+            <a
+                href="index.html"
+                class="profile-back-home"
+            >
+
+                <i class="bx bx-arrow-back"></i>
+
+                Back to TrendSphere Media
+
+            </a>
+
+
+        </div>
+
+
+    </main>
+</body>
+ <!--===============================================
+                    JAVASCRIPT
+    ================================================-->
+
+    <!-- Supabase -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- Supabase Configuration -->
+
+    <script
+        src="assets/JavaScript/supabase.js"
+    ></script>
+
+ <script src="assets/JavaScript/data-cleanup.js"></script>
+    <!-- Profile -->
+
+    <script
+        src="assets/JavaScript/profile.js"
+    ></script>
+
+<script src="assets/JavaScript/darkmode.js"></script>
+</html>

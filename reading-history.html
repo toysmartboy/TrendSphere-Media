@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Reading History | TrendSphere Media </title>
+    <!-- Website CSS -->
+    <link rel="stylesheet" href="assets/CSS/style.css">
+    <link rel="stylesheet" href="assets/CSS/responsive.css">
+    <link rel="stylesheet" href="assets/CSS/darkmode.css">
+    <!-- Boxicons -->
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <!-- Website Icon -->
+    <link rel="icon" href="assets/Images/icons/TrendSphere Media Logo ICON.jpg">
+</head>
+
+<body>
+    <!--===============================================
+                    READING HISTORY
+    ================================================-->
+    <main class="history-page">
+
+        <div class="container">
+
+
+            <!--===========================================
+                    HISTORY HEADER
+            ===========================================-->
+
+            <div class="history-header">
+
+                <div>
+
+                    <h1>
+
+                        <i class="bx bx-history"></i>
+
+                        Reading History
+
+                        <span
+                            id="history-count"
+                            class="history-count"
+                        >
+                            0
+                        </span>
+
+                    </h1>
+
+                    <p>
+                        Articles you've recently read.
+                    </p>
+
+                </div>
+
+
+                <!-- CLEAR HISTORY -->
+
+                <button
+                    type="button"
+                    id="clear-history"
+                    class="clear-history"
+                >
+
+                    <i class="bx bx-trash"></i>
+
+                    Clear History
+
+                </button>
+
+            </div>
+
+
+
+            <!--===========================================
+                    HISTORY SEARCH
+            ===========================================-->
+
+            <div class="history-search">
+
+                <i class="bx bx-search"></i>
+
+                <input
+                    type="text"
+                    id="history-search-input"
+                    placeholder="Search reading history..."
+                    autocomplete="off"
+                >
+
+                <button
+                    type="button"
+                    id="clear-history-search"
+                    aria-label="Clear search"
+                >
+
+                    <i class="bx bx-x"></i>
+
+                </button>
+
+            </div>
+
+
+
+            <!--===========================================
+                    HISTORY SORT
+            ===========================================-->
+
+            <div class="history-controls">
+
+                <label for="history-sort">
+
+                    Sort:
+
+                </label>
+
+
+                <select id="history-sort">
+
+                    <option value="newest">
+                        Recently Read
+                    </option>
+
+                    <option value="oldest">
+                        Oldest Read
+                    </option>
+
+                </select>
+
+            </div>
+
+
+
+            <!--===========================================
+                    HISTORY ARTICLES
+            ===========================================-->
+
+            <div
+                id="history-container"
+                class="history-container"
+            ></div>
+
+
+
+            <!--===========================================
+                    EMPTY STATE
+            ===========================================-->
+
+            <div
+                id="history-empty"
+                class="history-empty"
+            >
+
+                <i class="bx bx-history"></i>
+
+                <h2>
+                    No Reading History
+                </h2>
+
+                <p>
+                    Articles you read will appear here.
+                </p>
+
+
+                <a
+                    href="index.html"
+                    class="browse-history-news"
+                >
+
+                    <i class="bx bx-news"></i>
+
+                    Browse News
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+
+    <!--===============================================
+                CLEAR HISTORY MODAL
+    ================================================-->
+
+    <div
+        id="clear-history-modal"
+        class="clear-history-modal"
+    >
+
+        <div class="clear-history-box">
+
+            <button
+                type="button"
+                id="close-history-modal"
+                class="close-history-modal"
+                aria-label="Close"
+            >
+
+                <i class="bx bx-x"></i>
+
+            </button>
+
+
+            <i class="bx bx-trash"></i>
+
+
+            <h2>
+                Clear Reading History?
+            </h2>
+
+
+            <p>
+                This will remove all articles
+                from your reading history.
+                This action cannot be undone.
+            </p>
+
+
+            <div class="clear-history-actions">
+
+                <button
+                    type="button"
+                    id="cancel-clear-history"
+                >
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                    type="button"
+                    id="confirm-clear-history"
+                >
+
+                    Clear History
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="assets/JavaScript/supabase.js"></script>
+ <script src="assets/JavaScript/data-cleanup.js"></script>
+<script src="assets/JavaScript/reading-history.js"></script>
+<script src="assets/JavaScript/darkmode.js"></script>
+</html>
+

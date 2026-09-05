@@ -1,0 +1,17 @@
+{
+  "name": "trendsphere-push-server",
+  "version": "1.0.0",
+  "description": "TrendSphere Media Push Notification Server",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "web-push": "^3.6.7"
+  }
+}

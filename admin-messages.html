@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Admin Messages | TrendSphere Media
+    </title>
+    <!-- Website Icon -->
+    <link rel="icon" href="assets/Images/icons/TrendSphere Media Logo ICON.jpg">
+
+    <link
+        href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="./assets/css/style.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<main class="admin-page">
+
+    <div class="container">
+
+
+        <div class="admin-header">
+
+            <div>
+
+                <span>
+                    TrendSphere Media
+                </span>
+
+                <h1>
+                    Contact Messages
+                </h1>
+
+                <p>
+                    Manage messages submitted through
+                    the TrendSphere contact form.
+                </p>
+
+            </div>
+
+
+            <a
+                href="index.html"
+                class="back-home"
+            >
+
+                <i class="bx bx-home"></i>
+
+                Back Home
+
+            </a>
+
+        </div>
+
+
+        <!-- =====================================
+             ADMIN STATUS
+        ====================================== -->
+
+        <div
+            id="admin-status"
+            class="admin-status"
+        >
+        </div>
+
+
+        <!-- =====================================
+             STATISTICS
+        ====================================== -->
+
+        <div class="admin-stats">
+
+            <div class="admin-stat-card">
+
+                <span>
+                    Total Messages
+                </span>
+
+                <strong id="total-messages">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="admin-stat-card">
+
+                <span>
+                    Unread
+                </span>
+
+                <strong id="unread-messages">
+                    0
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================
+             MESSAGES
+        ====================================== -->
+
+        <section
+            id="messages-container"
+            class="admin-messages-container"
+        >
+
+            <div class="admin-loading">
+
+                <i class="bx bx-loader-alt bx-spin"></i>
+
+                <p>
+                    Loading messages...
+                </p>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+<script
+    src="assets/JavaScript/supabase.js"
+></script>
+
+<script
+    src="assets/JavaScript/admin-messages.js"
+></script>
+
+
+</body>
+
+</html>

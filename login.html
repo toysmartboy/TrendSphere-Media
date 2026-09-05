@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Sign In | TrendSphere Media </title>
+    <!-- Website Icon -->
+    <link rel="icon" href="assets/Images/icons/TrendSphere Media Logo ICON.jpg">
+    <!-- Website CSS -->
+    <link rel="stylesheet" href="assets/CSS/style.css">
+    <link rel="stylesheet" href="assets/CSS/responsive.css">
+    <link rel="stylesheet" href="assets/CSS/darkmode.css">
+    <!-- Boxicons -->
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+</head>
+<body>
+    <!--===============================================
+                    LOGIN PAGE 
+    ================================================-->
+    <main class="auth-page">
+        <div class="auth-container">
+            <!--===========================================
+                    LOGIN HEADER
+            ===========================================-->
+            <div class="auth-header">
+                <a
+                    href="index.html"
+                    class="auth-logo"
+                >
+
+                    <img
+                        src="assets/Images/Logos/TrendSphere Media Logo logo.png"
+                        alt="TrendSphere Media"
+                    >
+
+                </a>
+
+
+                <h1>
+                    Welcome Back
+                </h1>
+
+
+                <p>
+                    Sign in to continue to TrendSphere Media.
+                </p>
+
+            </div>
+
+
+
+            <!--===========================================
+                    LOGIN FORM
+            ===========================================-->
+
+            <form
+                id="login-form"
+                class="auth-form"
+            >
+
+
+                <!-- EMAIL -->
+
+                <div class="auth-input-group">
+
+                    <label for="login-email">
+                        Email Address
+                    </label>
+
+
+                    <div class="auth-input">
+
+                        <i class="bx bx-envelope"></i>
+
+                        <input
+                            type="email"
+                            id="login-email"
+                            placeholder="Enter your email"
+                            autocomplete="email"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PASSWORD -->
+
+                <div class="auth-input-group">
+
+                    <label for="login-password">
+                        Password
+                    </label>
+
+
+                    <div class="auth-input">
+
+                        <i class="bx bx-lock-alt"></i>
+
+                        <input
+                            type="password"
+                            id="login-password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            id="toggle-login-password"
+                            aria-label="Show password"
+                        >
+
+                            <i class="bx bx-show"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- FORGOT PASSWORD -->
+
+                <div class="auth-forgot">
+
+                    <a href="forget-password.html">
+                        Forgot Password?
+                    </a>
+
+                </div>
+
+
+
+                <!-- MESSAGE -->
+
+                <div
+                    id="login-message"
+                    class="auth-message"
+                    role="alert"
+                ></div>
+
+
+
+                <!-- LOGIN BUTTON -->
+
+                <button
+                    type="submit"
+                    id="login-submit"
+                    class="auth-submit"
+                >
+
+                    <i class="bx bx-log-in"></i>
+
+                    Sign In
+
+                </button>
+
+                <!-- GOOGLE LOGIN -->
+
+                <button
+                    type="button"
+                    id="google-login"
+                    class="auth-submit google-login"
+                >
+
+                    <i class="bx bxl-google"></i>
+
+                    Continue with Google
+
+                </button>
+
+
+            </form>
+
+
+
+            <!--===========================================
+                    REGISTER LINK
+            ===========================================-->
+
+            <div class="auth-footer">
+
+                <p>
+
+                    Don't have an account?
+
+                    <a href="register.html">
+                        Create Account
+                    </a>
+
+                </p>
+
+
+                <a
+                    href="index.html"
+                    class="back-home"
+                >
+
+                    <i class="bx bx-arrow-back"></i>
+
+                    Back to TrendSphere Media
+
+                </a>
+
+            </div>
+
+
+        </div>
+
+    </main>
+</body>
+
+
+    <!--===============================================
+                    JAVASCRIPT
+    ================================================-->
+
+    <!-- Supabase -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- Supabase Configuration -->
+
+    <script
+        src="assets/JavaScript/supabase.js"
+    ></script>
+
+ <script src="assets/JavaScript/data-cleanup.js"></script>
+    <!-- Login -->
+
+    <script
+        src="assets/JavaScript/login.js"
+    ></script>
+
+    <script src="assets/JavaScript/darkmode.js"></script>
+
+</html>

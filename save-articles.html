@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Saved-Article | TrendSphere Media
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="assets/CSS/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    >
+
+    <!-- Website Icon -->
+
+    <link
+        rel="icon"
+        href="assets/Images/icons/TrendSphere Media Logo ICON.jpg"
+    >
+
+</head>
+
+
+<body>
+
+
+    <!--===============================================
+                    SAVED ARTICLES
+    ================================================-->
+
+    <main class="saved-page">
+
+        
+
+        <div class="container">
+
+
+            <!--===========================================
+                    SAVED ARTICLES HEADER
+            ===========================================-->
+
+            <div class="saved-header">
+
+                <h1>
+
+                    Saved Articles
+
+                    <span
+                        id="saved-count"
+                        class="saved-count"
+                    >
+                        0
+                    </span>
+
+                </h1>
+
+                <p>
+                    Articles you've saved for later.
+                </p>
+
+            </div>
+
+
+
+            <!--===========================================
+                    SEARCH SAVED ARTICLES
+            ===========================================-->
+
+            <div class="saved-search">
+
+                <i class="bx bx-search"></i>
+
+                <input
+                    type="text"
+                    id="saved-search-input"
+                    placeholder="Search saved articles..."
+                    autocomplete="off"
+                >
+
+                <button
+                    id="clear-saved-search"
+                    type="button"
+                    aria-label="Clear search"
+                >
+
+                    <i class="bx bx-x"></i>
+
+                </button>
+
+            </div>
+
+
+            <!--===============================================
+              SAVED ARTICLES STATISTICS
+================================================-->
+
+<div class="saved-statistics">
+
+    <div class="saved-stat-card">
+
+        <i class="bx bx-bookmark"></i>
+
+        <div>
+            <span>Total Saved</span>
+            <strong id="stat-total-saved">0</strong>
+        </div>
+
+    </div>
+
+
+    <div class="saved-stat-card">
+
+        <i class="bx bx-check-square"></i>
+
+        <div>
+            <span>Selected</span>
+            <strong id="stat-selected-saved">0</strong>
+        </div>
+
+    </div>
+
+
+    <div class="saved-stat-card">
+
+        <i class="bx bx-category"></i>
+
+        <div>
+            <span>Categories</span>
+            <strong id="stat-saved-categories">0</strong>
+        </div>
+
+    </div>
+
+</div>
+
+
+            <!--===========================================
+                    SAVED ARTICLE ACTIONS
+            ===========================================-->
+
+            <div class="saved-page-actions">
+
+
+                <!-- CLEAR ALL -->
+
+                <button
+                    id="clear-all-saved"
+                    class="clear-all-saved"
+                    type="button"
+                >
+
+                    <i class="bx bx-trash"></i>
+
+                    Clear All
+
+                </button>
+
+
+
+                <!-- MANAGE -->
+
+                <button
+                    id="manage-saved"
+                    class="manage-saved"
+                    type="button"
+                >
+
+                    <i class="bx bx-check-square"></i>
+
+                    Manage
+
+                </button>
+                <button
+                    id="export-saved"
+                    class="export-saved"
+                    type="button"
+                >
+                    <i class="bx bx-download"></i>
+                    Export
+                </button>
+
+                <!--===============================================
+                    PRINT SAVED ARTICLES
+                ===============================================-->
+
+                <button
+                    id="print-saved"
+                    class="print-saved"
+                    type="button"
+                >
+                    <i class="bx bx-printer"></i>
+                    Print
+                </button>
+
+                <button
+                    id="print-selected-saved"
+                    class="print-selected-saved"
+                    type="button"
+                >
+                    <i class="bx bx-printer"></i>
+                    Print Selected
+                </button>
+                <button
+                    id="copy-selected-saved"
+                    class="copy-selected-saved"
+                    type="button"
+                >
+                    <i class="bx bx-copy"></i>
+                    Copy Links
+                </button>
+                <button
+                    id="share-selected-saved"
+                    class="share-selected-saved"
+                    type="button"
+                >
+                    <i class="bx bx-share-alt"></i>
+                    Share Selected
+                </button>
+
+                <button
+                    id="download-selected-saved"
+                    class="download-selected-saved"
+                    type="button"
+                >
+                    <i class="bx bx-download"></i>
+                    Download Selected
+                </button>
+                
+            </div>
+
+
+
+            <!--===========================================
+                    SORT SAVED ARTICLES
+            ===========================================-->
+
+            <div class="saved-sort">
+
+                <label for="saved-sort-select">
+
+                    Sort:
+
+                </label>
+
+                <select id="saved-sort-select">
+
+                    <option value="newest">
+                        Newest First
+                    </option>
+
+                    <option value="oldest">
+                        Oldest First
+                    </option>
+
+                </select>
+
+            </div>
+
+
+<!--===============================================
+              SAVED VIEW TOGGLE
+================================================-->
+
+            <div class="saved-view-toggle">
+
+                <button
+                    id="saved-grid-view"
+                    class="saved-view-btn active"
+                    type="button"
+                    aria-label="Grid view"
+                    title="Grid view"
+                >
+                    <i class="bx bx-grid-alt"></i>
+                </button>
+
+
+                <button
+                    id="saved-list-view"
+                    class="saved-view-btn"
+                    type="button"
+                    aria-label="List view"
+                    title="List view"
+                >
+                    <i class="bx bx-list-ul"></i>
+                </button>
+
+            </div>
+
+
+
+            <!--===========================================
+                    SAVED ARTICLE FILTER
+            ===========================================-->
+
+            <div class="saved-filter">
+
+                <button
+                    class="saved-filter-btn"
+                    data-category="recent"
+                >
+                    <i class="bx bx-time-five"></i>
+                    Recent
+                </button>
+
+                <button
+                    class="saved-filter-btn active"
+                    data-category="all"
+                >
+                    All
+                </button>
+
+
+                <button
+                    class="saved-filter-btn"
+                    data-category="technology"
+                >
+                    Technology
+                </button>
+
+
+                <button
+                    class="saved-filter-btn"
+                    data-category="sports"
+                >
+                    Sports
+                </button>
+
+
+                <button
+                    class="saved-filter-btn"
+                    data-category="entertainment"
+                >
+                    Entertainment
+                </button>
+
+
+                <button
+                    class="saved-filter-btn"
+                    data-category="general"
+                >
+                    General
+                </button>
+
+            </div>
+
+
+<!--===============================================
+          SAVED TIME FILTER
+================================================-->
+
+<div class="saved-time-filter">
+
+    <button
+        type="button"
+        class="saved-time-btn active"
+        data-time="all"
+    >
+        All Time
+    </button>
+
+    <button
+        type="button"
+        class="saved-time-btn"
+        data-time="24h"
+    >
+        Last 24 Hours
+    </button>
+
+    <button
+        type="button"
+        class="saved-time-btn"
+        data-time="7d"
+    >
+        Last 7 Days
+    </button>
+
+    <button
+        type="button"
+        class="saved-time-btn"
+        data-time="30d"
+    >
+        Last 30 Days
+    </button>
+
+</div>
+
+
+            <!--===========================================
+                    MANAGE CONTROLS
+            ===========================================-->
+
+            <div
+                id="manage-controls"
+                class="manage-controls"
+            >
+
+
+                <!-- SELECT ALL -->
+
+                <button
+                    id="select-all-saved"
+                    type="button"
+                >
+
+                    <i class="bx bx-select-multiple"></i>
+
+                    Select All
+
+                </button>
+
+
+
+                <!-- DELETE SELECTED -->
+
+                <button
+                    id="delete-selected-saved"
+                    type="button"
+                    disabled
+                >
+
+                    <i class="bx bx-trash"></i>
+
+                    Delete Selected
+
+                    <span id="selected-saved-count">
+                        0
+                    </span>
+
+                </button>
+
+
+
+                <!-- CANCEL MANAGE -->
+
+                <button
+                    id="cancel-manage-saved"
+                    type="button"
+                >
+
+                    Cancel
+
+                </button>
+
+            </div>
+
+
+
+            <!--===========================================
+                    SAVED ARTICLES CONTAINER
+            ===========================================-->
+
+            <div
+                id="saved-articles-container"
+                class="saved-articles-grid"
+            ></div>
+
+
+            
+
+            <!--===========================================
+                    EMPTY STATE
+            ===========================================-->
+
+            <div
+                id="saved-empty"
+                class="saved-empty"
+            >
+
+                <i class="bx bx-bookmark"></i>
+
+                <h2>
+                    No Saved Articles
+                </h2>
+
+                <p>
+                    Articles you save will appear here.
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!--===============================================
+                CLEAR ALL CONFIRMATION MODAL
+        ================================================-->
+
+        <div
+            class="clear-confirm-modal"
+            id="clear-confirm-modal"
+        >
+
+            <div class="clear-confirm-box">
+
+                <i class="bx bx-trash"></i>
+
+                <h2>
+                    Clear Saved Articles?
+                </h2>
+
+                <p>
+                    This will remove all your saved
+                    articles.
+                    This action cannot be undone.
+                </p>
+
+
+                <div class="clear-confirm-actions">
+
+
+                    <!-- CANCEL -->
+
+                    <button
+                        type="button"
+                        id="cancel-clear-saved"
+                    >
+
+                        Cancel
+
+                    </button>
+
+
+
+                    <!-- CONFIRM -->
+
+                    <button
+                        type="button"
+                        id="confirm-clear-saved"
+                    >
+
+                        Clear All
+
+                    </button>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!--===============================================
+        DELETE SELECTED CONFIRMATION
+================================================-->
+
+<div class="delete-selected-modal" id="delete-selected-modal">
+
+    <div class="delete-selected-box">
+
+        <i class="bx bx-trash"></i>
+
+        <h2>
+            Delete Selected Articles?
+        </h2>
+
+        <p>
+            You are about to remove
+            <strong id="delete-selected-number">0</strong>
+            saved articles.
+            This action cannot be undone.
+        </p>
+
+        <div class="delete-selected-actions">
+
+            <button
+                type="button"
+                id="cancel-delete-selected"
+            >
+                Cancel
+            </button>
+
+            <button
+                type="button"
+                id="confirm-delete-selected"
+            >
+                Delete
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!--===============================================
+              SAVED ARTICLE NOTE MODAL
+================================================-->
+
+<div id="saved-note-modal" class="saved-note-modal">
+
+    <div class="saved-note-box">
+
+        <button type="button" id="close-saved-note" class="close-saved-note" aria-label="Close" >
+            <i class="bx bx-x"></i>
+        </button>
+
+
+        <div class="saved-note-header">
+
+            <i class="bx bx-note"></i>
+
+            <h2>Article Note</h2>
+
+        </div>
+
+
+        <p id="saved-note-title"></p>
+
+
+        <textarea
+            id="saved-note-input"
+            placeholder="Write a personal note about this article..."
+            rows="6"
+        ></textarea>
+
+
+        <div class="saved-note-actions">
+
+            <button
+                type="button"
+                id="delete-saved-note"
+                class="delete-saved-note"
+            >
+                <i class="bx bx-trash"></i>
+                Delete Note
+            </button>
+
+            <button
+                type="button"
+                id="cancel-saved-note"
+            >
+                Cancel
+            </button>
+
+
+            <button
+                type="button"
+                id="save-saved-note"
+            >
+                <i class="bx bx-save"></i>
+                Save Note
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+    </main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/JavaScript/supabase.js"></script>
+
+    <!--===============================================
+                    JAVASCRIPT
+    ================================================-->
+ <script src="assets/JavaScript/data-cleanup.js"></script>
+    <script
+        src="assets/JavaScript/save-articles.js"
+    ></script>
+    <script src="assets/JavaScript/darkmode.js"></script>
+
+
+</body>
+
+</html>
