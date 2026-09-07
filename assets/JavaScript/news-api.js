@@ -1,28 +1,87 @@
 // =====================================================
-//                    NEWS API CONFIGURATION
+//                    RSS CONFIGURATION
 //                    TrendSphere Media
 // =====================================================
 
-// IMPORTANT:
-// Keep your API key private.
-// Generate a new key if this key has been exposed.
+// TrendSphere RSS Server
+const RSS_SERVER_URL =
+    "https://trendsphere-rss.onrender.com";
 
-const API_KEY = "5e8c5c68fcf745dd9ae4c5243076a40b";
+
+// =====================================================
+//                    RSS ENDPOINTS
+// =====================================================
 
 const BASE_URL =
-    `https://newsapi.org/v2/top-headlines?country=us&pageSize=20&apiKey=${API_KEY}`;
+    `${RSS_SERVER_URL}/rss/general`;
 
 const TECHNOLOGY_URL =
-    `https://newsapi.org/v2/top-headlines?country=us&category=technology&pageSize=6&apiKey=${API_KEY}`;
+    `${RSS_SERVER_URL}/rss/technology`;
+
+const BUSINESS_URL =
+    `${RSS_SERVER_URL}/rss/business`;
 
 const SPORTS_URL =
-    `https://newsapi.org/v2/top-headlines?country=us&category=sports&pageSize=6&apiKey=${API_KEY}`;
+    `${RSS_SERVER_URL}/rss/sports`;
 
 const ENTERTAINMENT_URL =
-    `https://newsapi.org/v2/top-headlines?country=us&category=entertainment&pageSize=6&apiKey=${API_KEY}`;
+    `${RSS_SERVER_URL}/rss/entertainment`;
 
-const SEARCH_URL =
-    "https://newsapi.org/v2/everything?q=";
+const CELEBRITY_URL =
+    `${RSS_SERVER_URL}/rss/celebrity`;
+
+const MUSIC_URL =
+    `${RSS_SERVER_URL}/rss/music`;
+
+const LIFESTYLE_URL =
+    `${RSS_SERVER_URL}/rss/lifestyle`;
+
+const VIDEO_URL =
+    `${RSS_SERVER_URL}/rss/video`;
+
+// =====================================================
+//                    SEARCH
+// =====================================================
+
+// Search will be handled separately.
+// The old NewsAPI search URL is no longer used.
+const SEARCH_URL = "";
+
+
+// =====================================================
+//                    RSS CATEGORIES
+// =====================================================
+
+const RSS_CATEGORIES = {
+
+    general:
+        `${RSS_SERVER_URL}/rss/general`,
+
+    technology:
+        `${RSS_SERVER_URL}/rss/technology`,
+
+    business:
+        `${RSS_SERVER_URL}/rss/business`,
+
+    sports:
+        `${RSS_SERVER_URL}/rss/sports`,
+
+    entertainment:
+        `${RSS_SERVER_URL}/rss/entertainment`,
+
+    celebrity:
+        `${RSS_SERVER_URL}/rss/celebrity`,
+
+    music:
+        `${RSS_SERVER_URL}/rss/music`,
+
+    lifestyle:
+    `${RSS_SERVER_URL}/rss/lifestyle`,
+
+    video:
+        `${RSS_SERVER_URL}/rss/video`,
+
+};
 
 // =====================================================
 //                    DOM ELEMENTS
@@ -61,6 +120,18 @@ const technologyNews =
 const entertainmentNews =
     document.getElementById("entertainment-news");
 
+const celebrityNews =
+    document.getElementById("celebrity-news");
+
+const musicNews =
+    document.getElementById("music-news");
+
+const businessNews =
+    document.getElementById("business-news");
+
+const lifestyleNews =
+    document.getElementById("lifestyle-news");
+
 const featuredContainer =
     document.getElementById("featured-container");
 
@@ -97,9 +168,16 @@ async function fetchWithCache(url){
     const cacheKey =
         `newsCache_${url}`;
 
-    const cached =
-        localStorage.getItem(cacheKey);
 
+    const cached =
+        localStorage.getItem(
+            cacheKey
+        );
+
+
+    // =================================================
+    //              CHECK LOCAL CACHE
+    // =================================================
 
     if(cached){
 
@@ -107,6 +185,7 @@ async function fetchWithCache(url){
 
             const cacheData =
                 JSON.parse(cached);
+
 
             const cacheAge =
                 Date.now() -
@@ -119,6 +198,7 @@ async function fetchWithCache(url){
                     "Using cached news:",
                     url
                 );
+
 
                 return cacheData.data;
             }
@@ -136,12 +216,17 @@ async function fetchWithCache(url){
                 error
             );
 
+
             localStorage.removeItem(
                 cacheKey
             );
         }
     }
 
+
+    // =================================================
+    //              FETCH RSS SERVER
+    // =================================================
 
     const response =
         await fetch(url);
@@ -155,20 +240,74 @@ async function fetchWithCache(url){
     }
 
 
-    const data =
+    const rssData =
         await response.json();
 
 
-    if(data.status === "ok"){
+    // =================================================
+    //              VALIDATE RSS RESPONSE
+    // =================================================
 
-        localStorage.setItem(
-            cacheKey,
-            JSON.stringify({
-                timestamp: Date.now(),
-                data: data
-            })
+    if(
+        !rssData ||
+        !rssData.success ||
+        !Array.isArray(
+            rssData.articles
+        )
+    ){
+
+        throw new Error(
+            "Invalid RSS server response."
         );
     }
+
+
+    // =================================================
+    //      CONVERT RSS RESPONSE TO NEWS FORMAT
+    // =================================================
+
+    const data = {
+
+        status:
+            "ok",
+
+        source:
+            rssData.source,
+
+        category:
+            rssData.category,
+
+        count:
+            rssData.count,
+
+        articles:
+            rssData.articles
+
+    };
+
+
+    // =================================================
+    //              SAVE TO CACHE
+    // =================================================
+
+    localStorage.setItem(
+        cacheKey,
+        JSON.stringify({
+
+            timestamp:
+                Date.now(),
+
+            data:
+                data
+
+        })
+    );
+
+
+    console.log(
+        "Fresh RSS news loaded:",
+        url
+    );
 
 
     return data;
@@ -1222,18 +1361,18 @@ if(loadMoreBtn){
 }
 
 
+// =====================================================
+//                    LOAD MORE NEWS
+// =====================================================
+
 async function loadMoreNews(){
 
     try{
 
-        const response =
-            await fetch(
-                `https://newsapi.org/v2/top-headlines?country=us&page=${currentPage}&pageSize=${PAGE_SIZE}&apiKey=${API_KEY}`
-            );
-
-
         const data =
-            await response.json();
+            await fetchWithCache(
+                BASE_URL
+            );
 
 
         if(
@@ -1242,24 +1381,67 @@ async function loadMoreNews(){
         ){
 
             console.error(
-                "Unable to load more news:",
-                data.message
+                "Unable to load more RSS news."
             );
 
             return;
         }
 
 
+        // =================================================
+        //      CALCULATE NEXT BATCH
+        // =================================================
+
+        const startIndex =
+            12 +
+            ((currentPage - 2) * 6);
+
+
+        const nextArticles =
+            data.articles.slice(
+                startIndex,
+                startIndex + 6
+            );
+
+
+        if(
+            nextArticles.length === 0
+        ){
+
+            console.log(
+                "No more RSS articles available."
+            );
+
+
+            if(loadMoreBtn){
+
+                loadMoreBtn.disabled =
+                    true;
+
+                loadMoreBtn.textContent =
+                    "No More News";
+            }
+
+
+            return;
+        }
+
+
+        // =================================================
+        //              APPEND ARTICLES
+        // =================================================
+
         appendLatestNews(
-            data.articles
+            nextArticles
         );
 
 
-        // Create notifications for the first
-        // few newly loaded articles.
+        // =================================================
+        //      CREATE NOTIFICATIONS
+        // =================================================
 
         await createNotificationsForArticles(
-            data.articles,
+            nextArticles,
             "general",
             2
         );
@@ -1268,7 +1450,7 @@ async function loadMoreNews(){
     catch(error){
 
         console.error(
-            "Load more error:",
+            "Load more RSS error:",
             error
         );
     }
@@ -1617,8 +1799,78 @@ if(entertainmentNews){
 }
 
 
+if(celebrityNews){
+    showNewsLoading(celebrityNews);
+
+    fetchCategoryNews(
+        CELEBRITY_URL,
+        displayCelebrityNews,
+        celebrityNews,
+        "celebrity"
+    );
+}
+
+
+
+
+
+if(musicNews){
+
+    showNewsLoading(
+        musicNews
+    );
+
+    fetchCategoryNews(
+        MUSIC_URL,
+        displayMusicNews,
+        musicNews,
+        "music"
+    );
+
+}
+
+
+
+
+if(businessNews){
+
+    showNewsLoading(
+        businessNews
+    );
+
+    fetchCategoryNews(
+        BUSINESS_URL,
+        displayBusinessNews,
+        businessNews,
+        "business"
+    );
+
+}
+
+
+
+if(lifestyleNews){
+
+    showNewsLoading(
+        lifestyleNews
+    );
+
+    fetchCategoryNews(
+        LIFESTYLE_URL,
+        displayLifestyleNews,
+        lifestyleNews,
+        "lifestyle"
+    );
+
+}
+
+
 // =====================================================
 //              FETCH CATEGORY
+// =====================================================
+
+// =====================================================
+//              FETCH CATEGORY NEWS
 // =====================================================
 
 async function fetchNewsByCategory(
@@ -1628,24 +1880,89 @@ async function fetchNewsByCategory(
     showLoading();
 
 
+    const normalizedCategory =
+        String(category)
+            .toLowerCase()
+            .trim();
+
+
+    // =================================================
+    //              GET RSS URL
+    // =================================================
+
+    const rssUrl =
+        RSS_CATEGORIES[
+            normalizedCategory
+        ];
+
+
+    if(!rssUrl){
+
+        console.warn(
+            "RSS category not available:",
+            normalizedCategory
+        );
+
+
+        if(featuredContainer){
+
+            featuredContainer.innerHTML = `
+
+                <div class="featured-empty">
+
+                    <i class="bx bx-error-circle"></i>
+
+                    <h3>
+                        Category unavailable
+                    </h3>
+
+                    <p>
+                        This category is not available
+                        from the current RSS sources.
+                    </p>
+
+                </div>
+            `;
+        }
+
+
+        return;
+    }
+
+
     try{
 
-        const response =
-            await fetch(
-                `https://newsapi.org/v2/top-headlines?country=us&category=${category}&pageSize=20&apiKey=${API_KEY}`
-            );
-
+        // =================================================
+        //              FETCH RSS NEWS
+        // =================================================
 
         const data =
-            await response.json();
+            await fetchWithCache(
+                rssUrl
+            );
 
 
-        if(data.status !== "ok"){
+        console.log(
+            "RSS Category:",
+            normalizedCategory
+        );
+
+
+        console.log(
+            "RSS Category Data:",
+            data
+        );
+
+
+        if(
+            data.status !== "ok"
+        ){
 
             console.error(
-                "NewsAPI error:",
-                data.message
+                "RSS error:",
+                data
             );
+
 
             return;
         }
@@ -1657,32 +1974,53 @@ async function fetchNewsByCategory(
         ){
 
             console.warn(
-                "No articles returned."
+                "No RSS articles returned."
             );
+
 
             return;
         }
 
+
+        // =================================================
+        //              HERO NEWS
+        // =================================================
 
         displayHeroNews(
             data.articles[0]
         );
 
 
+        // =================================================
+        //              BREAKING NEWS
+        // =================================================
+
         displayBreakingNews(
             data.articles
         );
 
+
+        // =================================================
+        //              TRENDING NEWS
+        // =================================================
 
         displayTrendingNews(
             data.articles
         );
 
 
+        // =================================================
+        //              LATEST NEWS
+        // =================================================
+
         displayLatestNews(
             data.articles
         );
 
+
+        // =================================================
+        //              FEATURED NEWS
+        // =================================================
 
         displayFeaturedArticles(
             data.articles
@@ -1695,7 +2033,7 @@ async function fetchNewsByCategory(
 
         await createNotificationsForArticles(
             data.articles,
-            category,
+            normalizedCategory,
             3
         );
 
@@ -1703,7 +2041,7 @@ async function fetchNewsByCategory(
     catch(error){
 
         console.error(
-            "Error fetching category news:",
+            "RSS category fetch error:",
             error
         );
 
@@ -1727,6 +2065,7 @@ async function fetchNewsByCategory(
                 </div>
             `;
         }
+
     }
 }
 
@@ -1791,6 +2130,10 @@ categoryButtons.forEach(
 //              FETCH TRENDING NEWS
 // =====================================================
 
+// =====================================================
+//              FETCH TRENDING NEWS
+// =====================================================
+
 async function fetchTrendingNews(){
 
     if(trendingContainer){
@@ -1819,6 +2162,10 @@ async function fetchTrendingNews(){
 
     try{
 
+        // =================================================
+        //              FETCH RSS GENERAL NEWS
+        // =================================================
+
         const data =
             await fetchWithCache(
                 BASE_URL
@@ -1826,16 +2173,18 @@ async function fetchTrendingNews(){
 
 
         console.log(
-            "Main news data:",
+            "Main RSS news data:",
             data
         );
 
 
-        if(data.status !== "ok"){
+        if(
+            data.status !== "ok"
+        ){
 
             console.error(
-                "NewsAPI error:",
-                data.message
+                "RSS error:",
+                data
             );
 
 
@@ -1852,10 +2201,7 @@ async function fetchTrendingNews(){
                         </h3>
 
                         <p>
-                            ${
-                                data.message ||
-                                "Unable to load news."
-                            }
+                            Unable to load news.
                         </p>
 
                     </div>
@@ -1873,8 +2219,9 @@ async function fetchTrendingNews(){
         ){
 
             console.warn(
-                "No articles returned."
+                "No RSS articles returned."
             );
+
 
             return;
         }
@@ -1939,7 +2286,7 @@ async function fetchTrendingNews(){
     catch(error){
 
         console.error(
-            "Error fetching trending news:",
+            "Error fetching RSS trending news:",
             error
         );
 
@@ -2928,6 +3275,699 @@ function displayEntertainmentNews(
             }
         );
 }
+
+
+
+function displayCelebrityNews(articles){
+
+    if(!celebrityNews){
+        return;
+    }
+
+    celebrityNews.innerHTML = "";
+
+    if(!articles || articles.length === 0){
+        celebrityNews.innerHTML = `
+            <p class="no-news">
+                No celebrity news available right now.
+            </p>
+        `;
+        return;
+    }
+
+    articles.forEach(article => {
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "celebrity-card";
+
+        card.innerHTML = `
+
+            <img
+                src="${article.urlToImage || "assets/Images/placeholder.jpg"}"
+                alt="${article.title || "Celebrity news"}"
+                loading="lazy"
+                onerror="this.src='assets/Images/placeholder.jpg'"
+            >
+
+            <div class="celebrity-content">
+
+                <span>
+                    Celebrity
+                </span>
+
+                <h3>
+                    ${article.title || "Untitled article"}
+                </h3>
+
+            </div>
+
+        `;
+
+        card.addEventListener(
+            "click",
+            () => {
+                openNewsDetails(
+                    article,
+                    "celebrity"
+                );
+            }
+        );
+
+        celebrityNews.appendChild(card);
+
+    });
+
+}
+
+
+
+function displayMusicNews(articles){
+
+    if(!musicNews){
+        return;
+    }
+
+    musicNews.innerHTML = "";
+
+    if(
+        !articles ||
+        articles.length === 0
+    ){
+
+        musicNews.innerHTML = `
+            <p class="no-news">
+                No music news available right now.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    articles.forEach(article => {
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "music-card";
+
+
+        card.innerHTML = `
+
+            <img
+                src="${
+                    article.urlToImage ||
+                    "assets/Images/placeholder.jpg"
+                }"
+                alt="${
+                    article.title ||
+                    "Music news"
+                }"
+                loading="lazy"
+                onerror="
+                    this.src='assets/Images/placeholder.jpg'
+                "
+            >
+
+
+            <div class="music-content">
+
+                <span>
+                    Music
+                </span>
+
+                <h3>
+                    ${
+                        article.title ||
+                        "Untitled article"
+                    }
+                </h3>
+
+            </div>
+
+        `;
+
+
+        card.addEventListener(
+            "click",
+            () => {
+
+                openNewsDetails(
+                    article,
+                    "music"
+                );
+
+            }
+        );
+
+
+        musicNews.appendChild(
+            card
+        );
+
+    });
+
+}
+
+
+function displayBusinessNews(articles){
+
+    if(!businessNews){
+        return;
+    }
+
+    businessNews.innerHTML = "";
+
+    if(
+        !articles ||
+        articles.length === 0
+    ){
+
+        businessNews.innerHTML = `
+            <p class="no-news">
+                No business news available right now.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    articles.forEach(article => {
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "business-card";
+
+
+        card.innerHTML = `
+
+            <img
+                src="${
+                    article.urlToImage ||
+                    "assets/Images/placeholder.jpg"
+                }"
+                alt="${
+                    article.title ||
+                    "Business news"
+                }"
+                loading="lazy"
+                onerror="
+                    this.src='assets/Images/placeholder.jpg'
+                "
+            >
+
+
+            <div class="business-content">
+
+                <span>
+                    Business
+                </span>
+
+                <h3>
+                    ${
+                        article.title ||
+                        "Untitled article"
+                    }
+                </h3>
+
+            </div>
+
+        `;
+
+
+        card.addEventListener(
+            "click",
+            () => {
+
+                openNewsDetails(
+                    article,
+                    "business"
+                );
+
+            }
+        );
+
+
+        businessNews.appendChild(
+            card
+        );
+
+    });
+
+}
+
+
+function displayLifestyleNews(articles){
+
+    if(!lifestyleNews){
+        return;
+    }
+
+    lifestyleNews.innerHTML = "";
+
+    if(
+        !articles ||
+        articles.length === 0
+    ){
+
+        lifestyleNews.innerHTML = `
+            <p class="no-news">
+                No lifestyle news available right now.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    articles.forEach(article => {
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "lifestyle-card";
+
+
+        card.innerHTML = `
+
+            <img
+                src="${
+                    article.urlToImage ||
+                    "assets/Images/placeholder.jpg"
+                }"
+                alt="${
+                    article.title ||
+                    "Lifestyle news"
+                }"
+                loading="lazy"
+                onerror="
+                    this.src='assets/Images/placeholder.jpg'
+                "
+            >
+
+
+            <div class="lifestyle-content">
+
+                <span>
+                    Lifestyle
+                </span>
+
+                <h3>
+                    ${
+                        article.title ||
+                        "Untitled article"
+                    }
+                </h3>
+
+            </div>
+
+        `;
+
+
+        card.addEventListener(
+            "click",
+            () => {
+
+                openNewsDetails(
+                    article,
+                    "lifestyle"
+                );
+
+            }
+        );
+
+
+        lifestyleNews.appendChild(
+            card
+        );
+
+    });
+
+}
+
+
+
+
+
+// ==========================================
+//              VIDEO NEWS
+// ==========================================
+
+const videoNews =
+    document.getElementById("video-news");
+
+if(videoNews){
+
+    showNewsLoading(
+        videoNews
+    );
+
+    fetchCategoryNews(
+        VIDEO_URL,
+        displayVideoNews,
+        videoNews,
+        "video"
+    );
+
+}
+
+
+function displayVideoNews(articles){
+
+    if(!videoNews){
+        return;
+    }
+
+    videoNews.innerHTML = "";
+
+    if(
+        !articles ||
+        articles.length === 0
+    ){
+
+        videoNews.innerHTML = `
+            <p class="no-news">
+                No videos available right now.
+            </p>
+        `;
+
+        return;
+    }
+
+
+    articles.forEach(article => {
+
+        const card =
+            document.createElement("article");
+
+        card.className =
+            "video-card";
+
+
+        card.innerHTML = `
+
+            <div class="video-image">
+
+                <img
+                    src="${
+                        article.urlToImage ||
+                        "assets/Images/placeholder.jpg"
+                    }"
+                    alt="${
+                        article.title ||
+                        "Video news"
+                    }"
+                    loading="lazy"
+                    onerror="
+                        this.src='assets/Images/placeholder.jpg'
+                    "
+                >
+
+                <div class="video-play">
+                    <span>▶</span>
+                </div>
+                
+
+            </div>
+
+
+            <div class="video-content">
+
+    <span>
+        ▶ YouTube
+    </span>
+
+    <h3>
+        ${
+            article.title ||
+            "Untitled video"
+        }
+    </h3>
+
+    <small>
+        ${
+            article.publishedAt
+                ? new Date(
+                    article.publishedAt
+                ).toLocaleDateString(
+                    "en-US",
+                    {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric"
+                    }
+                )
+                : ""
+        }
+    </small>
+
+</div>
+        `;
+
+
+        card.addEventListener(
+            "click",
+            () => {
+
+               openVideoPlayer(article);
+            }
+        );
+
+
+        videoNews.appendChild(
+            card
+        );
+
+    });
+
+}
+
+
+
+
+// ==========================================
+//          YOUTUBE VIDEO PLAYER
+// ==========================================
+
+function getYouTubeVideoId(url){
+
+    if(!url){
+        return "";
+    }
+
+    const match =
+        url.match(
+            /(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([^&?/]+)/
+        );
+
+    return match
+        ? match[1]
+        : "";
+
+}
+
+
+function openVideoPlayer(article){
+
+    const videoModal =
+        document.getElementById(
+            "video-modal"
+        );
+
+    const videoIframe =
+        document.getElementById(
+            "video-iframe"
+        );
+
+    const videoTitle =
+        document.getElementById(
+            "video-modal-title"
+        );
+
+    const videoYouTubeLink =
+        document.getElementById(
+            "video-youtube-link"
+        );
+
+
+    if(
+        !videoModal ||
+        !videoIframe
+    ){
+        return;
+    }
+
+
+    const videoId =
+        getYouTubeVideoId(
+            article.url
+        );
+
+
+    if(!videoId){
+        return;
+    }
+
+
+   videoIframe.src =
+    `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&rel=0`;
+
+
+    if(videoTitle){
+
+        videoTitle.textContent =
+            article.title ||
+            "TrendSphere Video";
+
+    }
+    if(videoYouTubeLink){
+
+    videoYouTubeLink.href =
+        article.url || "#";
+
+    }
+
+
+    videoModal.classList.add(
+        "active"
+    );
+
+
+    videoModal.setAttribute(
+        "aria-hidden",
+        "false"
+    );
+
+
+    document.body.style.overflow =
+        "hidden";
+
+}
+
+
+
+
+
+
+
+
+
+// ==========================================
+//          CLOSE VIDEO PLAYER
+// ==========================================
+
+const videoModal =
+    document.getElementById(
+        "video-modal"
+    );
+
+const videoModalClose =
+    document.getElementById(
+        "video-modal-close"
+    );
+
+const videoModalOverlay =
+    document.querySelector(
+        ".video-modal-overlay"
+    );
+
+const videoIframe =
+    document.getElementById(
+        "video-iframe"
+    );
+
+
+function closeVideoPlayer(){
+
+    if(!videoModal){
+        return;
+    }
+
+
+    videoModal.classList.remove(
+        "active"
+    );
+
+
+    videoModal.setAttribute(
+        "aria-hidden",
+        "true"
+    );
+
+
+    if(videoIframe){
+
+        videoIframe.src = "";
+
+    }
+
+
+    document.body.style.overflow =
+        "";
+
+}
+
+
+// ==========================================
+//          CLOSE BUTTON
+// ==========================================
+
+if(videoModalClose){
+
+    videoModalClose.addEventListener(
+        "click",
+        closeVideoPlayer
+    );
+
+}
+
+
+// ==========================================
+//          CLICK OUTSIDE
+// ==========================================
+
+if(videoModalOverlay){
+
+    videoModalOverlay.addEventListener(
+        "click",
+        closeVideoPlayer
+    );
+
+}
+
+
+// ==========================================
+//          ESCAPE KEY
+// ==========================================
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(
+            event.key === "Escape" &&
+            videoModal &&
+            videoModal.classList.contains(
+                "active"
+            )
+        ){
+
+            closeVideoPlayer();
+
+        }
+
+    }
+);
+
+
 
 
 // =====================================================
