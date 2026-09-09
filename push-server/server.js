@@ -1,6 +1,14 @@
 //==================================================
-//              TRENDSPHERE MEDIA
+//==================================================
+//              TrendSphere Media
 //              PUSH NOTIFICATION SERVER
+//              Supabase + Web Push + RSS
+//==================================================
+//==================================================
+
+
+//==================================================
+//              IMPORT MODULES
 //==================================================
 
 import express from "express";
@@ -11,20 +19,39 @@ import { createClient } from "@supabase/supabase-js";
 
 
 //==================================================
-//              LOAD ENVIRONMENT
+//              LOAD ENVIRONMENT VARIABLES
 //==================================================
 
 dotenv.config();
 
 
 //==================================================
-//              SERVER CONFIGURATION
+//              APP CONFIGURATION
 //==================================================
 
 const app = express();
 
 const PORT =
     process.env.PORT || 3000;
+
+
+//==================================================
+//              RSS SERVER
+//==================================================
+
+// TrendSphere RSS Server
+//
+// The Push Server receives news from the RSS Server
+// instead of contacting NewsAPI directly.
+
+const RSS_SERVER_URL =
+    "https://trendsphere-rss.onrender.com";
+
+
+// Automatic news checking category.
+
+const RSS_NEWS_CATEGORY =
+    "general";
 
 
 //==================================================
@@ -36,9 +63,7 @@ app.use(
 );
 
 app.use(
-    express.json({
-        limit: "1mb"
-    })
+    express.json()
 );
 
 
@@ -49,33 +74,52 @@ app.use(
 const SUPABASE_URL =
     process.env.SUPABASE_URL;
 
-const SUPABASE_SECRET_KEY =
-    process.env.SUPABASE_SECRET_KEY;
+const SUPABASE_SERVICE_ROLE_KEY =
+    process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 
-if(
+//==================================================
+//              SUPABASE VALIDATION
+//==================================================
+
+if (
     !SUPABASE_URL ||
-    !SUPABASE_SECRET_KEY
-){
+    !SUPABASE_SERVICE_ROLE_KEY
+) {
 
     console.error(
-        "❌ Supabase configuration is missing from .env"
+        "❌ Missing Supabase environment variables."
+    );
+
+    console.error(
+        "Required:"
+    );
+
+    console.error(
+        "SUPABASE_URL"
+    );
+
+    console.error(
+        "SUPABASE_SERVICE_ROLE_KEY"
     );
 
     process.exit(1);
-
 }
 
+
+//==================================================
+//              SUPABASE CLIENT
+//==================================================
 
 const supabase =
     createClient(
         SUPABASE_URL,
-        SUPABASE_SECRET_KEY
+        SUPABASE_SERVICE_ROLE_KEY
     );
 
 
 console.log(
-    "✅ TrendSphere Supabase connection configured successfully."
+    "TrendSphere Supabase connection configured successfully."
 );
 
 
@@ -93,81 +137,54 @@ const VAPID_SUBJECT =
     process.env.VAPID_SUBJECT;
 
 
-if(
+//==================================================
+//              VAPID VALIDATION
+//==================================================
+
+if (
     !VAPID_PUBLIC_KEY ||
     !VAPID_PRIVATE_KEY ||
     !VAPID_SUBJECT
-){
+) {
 
     console.error(
-        "❌ VAPID configuration is missing from .env"
+        "❌ Missing VAPID environment variables."
+    );
+
+    console.error(
+        "Required:"
+    );
+
+    console.error(
+        "VAPID_PUBLIC_KEY"
+    );
+
+    console.error(
+        "VAPID_PRIVATE_KEY"
+    );
+
+    console.error(
+        "VAPID_SUBJECT"
     );
 
     process.exit(1);
-
 }
-
-
-//==================================================
-//              NEWS API CONFIGURATION
-//==================================================
-
-const NEWS_API_KEY =
-    process.env.NEWS_API_KEY;
-
-
-if(!NEWS_API_KEY){
-
-    console.error(
-        "❌ NEWS_API_KEY is missing from .env"
-    );
-
-    process.exit(1);
-
-}
-
-
-const NEWS_API_URL =
-    "https://newsapi.org/v2/top-headlines?country=us&pageSize=20";
-
-
-console.log(
-    "✅ TrendSphere NewsAPI configuration loaded successfully."
-);
 
 
 //==================================================
 //              CONFIGURE WEB PUSH
 //==================================================
 
-try{
-
-    webpush.setVapidDetails(
-
-        VAPID_SUBJECT,
-
-        VAPID_PUBLIC_KEY,
-
-        VAPID_PRIVATE_KEY
-
-    );
+webpush.setVapidDetails(
+    VAPID_SUBJECT,
+    VAPID_PUBLIC_KEY,
+    VAPID_PRIVATE_KEY
+);
 
 
-    console.log(
-        "✅ TrendSphere VAPID configuration loaded successfully."
-    );
-
-}
-catch(error){
-
-    console.error(
-        "❌ Unable to configure VAPID:",
-        error
-    );
-
-    process.exit(1);
-
-}
+console.log(
+    "✅ TrendSphere VAPID configuration loaded successfully."
+);
 
 
 //==================================================
@@ -184,10 +201,13 @@ app.get(
                 true,
 
             message:
-                "TrendSphere Push Server is running.",
+                "TrendSphere Push Server is running",
 
-            service:
-                "TrendSphere Media Push Notifications"
+            rssServer:
+                RSS_SERVER_URL,
+
+            rssCategory:
+                RSS_NEWS_CATEGORY
 
         });
 
@@ -196,188 +216,303 @@ app.get(
 
 
 //==================================================
-//              NEWS API ENDPOINT
+//              RSS FETCH HELPER
+//==================================================
+
+async function fetchRSSNews(
+    category = RSS_NEWS_CATEGORY
+) {
+
+    const rssURL =
+        `${RSS_SERVER_URL}/rss/${encodeURIComponent(category)}`;
+
+
+    console.log(
+        `🔎 Fetching RSS news from: ${rssURL}`
+    );
+
+
+    //==================================================
+    //              REQUEST TIMEOUT
+    //==================================================
+
+    const controller =
+        new AbortController();
+
+    const timeout =
+        setTimeout(
+            () => controller.abort(),
+            120000
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                rssURL,
+                {
+                    method:
+                        "GET",
+
+                    headers: {
+                        "Accept":
+                            "application/json"
+                    },
+
+                    signal:
+                        controller.signal
+                }
+            );
+
+
+        clearTimeout(timeout);
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                `RSS Server returned HTTP ${response.status}`
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !data ||
+            !data.success
+        ) {
+
+            throw new Error(
+                "RSS Server returned an unsuccessful response"
+            );
+
+        }
+
+
+        if (
+            !Array.isArray(
+                data.articles
+            )
+        ) {
+
+            throw new Error(
+                "RSS Server response does not contain an articles array"
+            );
+
+        }
+
+
+        console.log(
+            `📰 RSS Server returned ${data.articles.length} article(s).`
+        );
+
+
+        return data;
+
+
+    }
+    catch (error) {
+
+        clearTimeout(timeout);
+
+
+        if (
+            error.name ===
+            "AbortError"
+        ) {
+
+            throw new Error(
+                "RSS Server request timed out"
+            );
+
+        }
+
+
+        throw error;
+
+    }
+
+}
+
+
+//==================================================
+//              API NEWS ROUTE
+//==================================================
+//
+// This route is kept for compatibility.
+//
+// The Push Server no longer uses NewsAPI.
+// It now gets news from the TrendSphere RSS Server.
+//
+// Example:
+// /api/news
+// /api/news?category=sports
+// /api/news?category=technology
+//
 //==================================================
 
 app.get(
     "/api/news",
     async (req, res) => {
 
-        try{
+        try {
 
-            //==================================================
-            //          GET REQUEST PARAMETERS
-            //==================================================
-
-            const {
-
-                country = "us",
-
-                category,
-
-                page = 1,
-
-                pageSize = 20,
-
-                q
-
-            } = req.query;
+            const category =
+                String(
+                    req.query.category ||
+                    "general"
+                ).toLowerCase();
 
 
-            //==================================================
-            //          BUILD NEWS API URL
-            //==================================================
-
-            const newsApiUrl =
-                new URL(
-                    "https://newsapi.org/v2/top-headlines"
+            const page =
+                Math.max(
+                    Number(
+                        req.query.page
+                    ) || 1,
+                    1
                 );
 
 
-            //==================================================
-            //          ADD COUNTRY
-            //==================================================
+            const pageSize =
+                Math.min(
+                    Math.max(
+                        Number(
+                            req.query.pageSize
+                        ) || 20,
+                        1
+                    ),
+                    30
+                );
 
-            newsApiUrl.searchParams.set(
-                "country",
-                country
-            );
 
-
-            //==================================================
-            //          ADD CATEGORY
-            //==================================================
-
-            if(category){
-
-                newsApiUrl.searchParams.set(
-                    "category",
+            const data =
+                await fetchRSSNews(
                     category
                 );
 
-            }
+
+            let articles =
+                Array.isArray(
+                    data.articles
+                )
+                    ? data.articles
+                    : [];
 
 
             //==================================================
-            //          ADD SEARCH QUERY
+            //              OPTIONAL SEARCH
             //==================================================
 
-            if(q){
-
-                newsApiUrl.searchParams.set(
-                    "q",
-                    q
-                );
-
-            }
-
-
-            //==================================================
-            //          ADD PAGINATION
-            //==================================================
-
-            newsApiUrl.searchParams.set(
-                "page",
-                page
-            );
+            const searchQuery =
+                String(
+                    req.query.q ||
+                    ""
+                )
+                    .trim()
+                    .toLowerCase();
 
 
-            newsApiUrl.searchParams.set(
-                "pageSize",
-                pageSize
-            );
+            if (searchQuery) {
+
+                articles =
+                    articles.filter(
+                        article => {
+
+                            const title =
+                                String(
+                                    article.title ||
+                                    ""
+                                ).toLowerCase();
 
 
-            //==================================================
-            //          REQUEST NEWSAPI
-            //==================================================
-
-            console.log(
-                "📰 Requesting news from NewsAPI..."
-            );
+                            const description =
+                                String(
+                                    article.description ||
+                                    ""
+                                ).toLowerCase();
 
 
-            const response =
-                await fetch(
-                    newsApiUrl,
-                    {
-
-                        headers: {
-
-                            "X-Api-Key":
-                                NEWS_API_KEY
+                            return (
+                                title.includes(
+                                    searchQuery
+                                ) ||
+                                description.includes(
+                                    searchQuery
+                                )
+                            );
 
                         }
-
-                    }
-                );
-
-
-            //==================================================
-            //          READ RESPONSE
-            //==================================================
-
-            const data =
-                await response.json();
-
-
-            //==================================================
-            //          HANDLE NEWSAPI ERROR
-            //==================================================
-
-            if(!response.ok){
-
-                console.error(
-                    "❌ NewsAPI request failed:",
-                    data
-                );
-
-
-                return res.status(
-                    response.status
-                ).json({
-
-                    success:
-                        false,
-
-                    ...data
-
-                });
+                    );
 
             }
 
 
             //==================================================
-            //          SUCCESS
+            //              PAGINATION
             //==================================================
 
-            console.log(
-                "✅ NewsAPI request successful."
-            );
+            const startIndex =
+                (page - 1) *
+                pageSize;
 
 
-            return res.json(
-                data
-            );
+            const paginatedArticles =
+                articles.slice(
+                    startIndex,
+                    startIndex + pageSize
+                );
+
+
+            res.json({
+
+                success:
+                    true,
+
+                source:
+                    data.source,
+
+                category:
+                    category,
+
+                page:
+                    page,
+
+                pageSize:
+                    pageSize,
+
+                count:
+                    paginatedArticles.length,
+
+                totalResults:
+                    articles.length,
+
+                articles:
+                    paginatedArticles
+
+            });
+
 
         }
-        catch(error){
+        catch (error) {
 
             console.error(
-                "❌ NewsAPI server error:",
-                error
+                "❌ /api/news error:",
+                error.message
             );
 
 
-            return res.status(
-                500
-            ).json({
+            res.status(500).json({
 
                 success:
                     false,
 
                 message:
-                    "Unable to retrieve news from NewsAPI.",
+                    "Failed to fetch news from RSS Server",
 
                 error:
                     error.message
@@ -391,40 +526,50 @@ app.get(
 
 
 //==================================================
-//          TEST SUPABASE CONNECTION
+//              TEST SUPABASE
 //==================================================
 
 app.get(
     "/test-supabase",
     async (req, res) => {
 
-        try{
+        try {
 
             const {
                 data,
                 error
             } =
                 await supabase
-                    .from("push_subscriptions")
-                    .select("id")
+                    .from(
+                        "push_subscriptions"
+                    )
+                    .select(
+                        "id",
+                        {
+                            count:
+                                "exact"
+                        }
+                    )
                     .limit(1);
 
 
-            if(error){
+            if (error) {
 
                 console.error(
-                    "❌ Supabase test failed:",
+                    "Supabase test error:",
                     error
                 );
 
 
-                return res.status(500).json({
+                return res.status(
+                    500
+                ).json({
 
                     success:
                         false,
 
                     message:
-                        "Supabase connection failed.",
+                        "Supabase connection failed",
 
                     error:
                         error.message
@@ -434,40 +579,38 @@ app.get(
             }
 
 
-            console.log(
-                "✅ Supabase connection test successful."
-            );
-
-
-            return res.json({
+            res.json({
 
                 success:
                     true,
 
                 message:
-                    "Supabase connection is working.",
+                    "Supabase connection successful",
 
                 subscriptionCount:
                     data?.length || 0
 
             });
 
+
         }
-        catch(error){
+        catch (error) {
 
             console.error(
-                "❌ Supabase test error:",
+                "Supabase test exception:",
                 error
             );
 
 
-            return res.status(500).json({
+            res.status(
+                500
+            ).json({
 
                 success:
                     false,
 
                 message:
-                    "Unable to test Supabase.",
+                    "Supabase test failed",
 
                 error:
                     error.message
@@ -481,15 +624,15 @@ app.get(
 
 
 //==================================================
-//          SEND PUSH TO ONE SUBSCRIPTION
+//              SEND SINGLE PUSH
 //==================================================
 
 async function sendPushNotification(
     subscription,
     notificationData
-){
+) {
 
-    try{
+    try {
 
         await webpush.sendNotification(
 
@@ -505,19 +648,17 @@ async function sendPushNotification(
         return {
 
             success:
-                true,
-
-            error:
-                null
+                true
 
         };
 
     }
-    catch(error){
+    catch (error) {
 
         console.error(
-            "❌ Push delivery failed:",
-            error
+            "Web Push error:",
+            error.statusCode,
+            error.message
         );
 
 
@@ -526,8 +667,11 @@ async function sendPushNotification(
             success:
                 false,
 
-            error:
-                error
+            statusCode:
+                error.statusCode,
+
+            message:
+                error.message
 
         };
 
@@ -537,287 +681,40 @@ async function sendPushNotification(
 
 
 //==================================================
-//          SEND NOTIFICATION TO ALL SUBSCRIBERS
+//              SEND TO ALL SUBSCRIBERS
 //==================================================
 
 async function sendNotificationToSubscribers(
     notificationData
-){
+) {
 
-    try{
-
-        //==================================================
-        //          GET ALL SUBSCRIPTIONS
-        //==================================================
-
-        const {
-            data: subscriptions,
-            error
-        } =
-            await supabase
-                .from("push_subscriptions")
-                .select(
-                    "id,user_id,endpoint,p256dh,auth"
-                );
+    console.log(
+        "📢 Sending notification to subscribers..."
+    );
 
 
-        if(error){
+    //==================================================
+    //              GET SUBSCRIPTIONS
+    //==================================================
 
-            console.error(
-                "❌ Unable to get push subscriptions:",
-                error
+    const {
+        data: subscriptions,
+        error
+    } =
+        await supabase
+            .from(
+                "push_subscriptions"
+            )
+            .select(
+                "id,user_id,endpoint,p256dh,auth"
             );
 
 
-            return {
-
-                success:
-                    false,
-
-                message:
-                    "Unable to get push subscriptions.",
-
-                totalSubscriptions:
-                    0,
-
-                sent:
-                    0,
-
-                failed:
-                    0,
-
-                removedExpired:
-                    0,
-
-                error:
-                    error.message
-
-            };
-
-        }
-
-
-        //==================================================
-        //          CHECK SUBSCRIPTIONS
-        //==================================================
-
-        if(
-            !subscriptions ||
-            subscriptions.length === 0
-        ){
-
-            return {
-
-                success:
-                    false,
-
-                message:
-                    "No push subscriptions found.",
-
-                totalSubscriptions:
-                    0,
-
-                sent:
-                    0,
-
-                failed:
-                    0,
-
-                removedExpired:
-                    0
-
-            };
-
-        }
-
-
-        let sent =
-            0;
-
-        let failed =
-            0;
-
-        let removed =
-            0;
-
-
-        //==================================================
-        //          SEND TO EVERY SUBSCRIBER
-        //==================================================
-
-        for(
-            const subscriptionRow
-            of subscriptions
-        ){
-
-            //==================================================
-            //      VALIDATE SUBSCRIPTION
-            //==================================================
-
-            if(
-                !subscriptionRow.endpoint ||
-                !subscriptionRow.p256dh ||
-                !subscriptionRow.auth
-            ){
-
-                console.warn(
-                    "⚠️ Invalid push subscription:",
-                    subscriptionRow.id
-                );
-
-                failed++;
-
-                continue;
-
-            }
-
-
-            //==================================================
-            //      CREATE PUSH SUBSCRIPTION
-            //==================================================
-
-            const pushSubscription = {
-
-                endpoint:
-                    subscriptionRow.endpoint,
-
-                keys: {
-
-                    p256dh:
-                        subscriptionRow.p256dh,
-
-                    auth:
-                        subscriptionRow.auth
-
-                }
-
-            };
-
-
-            //==================================================
-            //      SEND PUSH
-            //==================================================
-
-            const result =
-                await sendPushNotification(
-                    pushSubscription,
-                    notificationData
-                );
-
-
-            //==================================================
-            //      SUCCESS
-            //==================================================
-
-            if(result.success){
-
-                sent++;
-
-
-                console.log(
-                    "✅ Push notification sent to:",
-                    subscriptionRow.user_id
-                );
-
-            }
-
-
-            //==================================================
-            //      FAILED
-            //==================================================
-
-            else{
-
-                failed++;
-
-
-                const statusCode =
-                    result.error?.statusCode;
-
-
-                //==================================================
-                //      REMOVE EXPIRED SUBSCRIPTION
-                //==================================================
-
-                if(
-                    statusCode === 404 ||
-                    statusCode === 410
-                ){
-
-                    console.log(
-                        "🗑️ Removing expired push subscription:",
-                        subscriptionRow.id
-                    );
-
-
-                    const {
-                        error:
-                            deleteError
-                    } =
-                        await supabase
-                            .from(
-                                "push_subscriptions"
-                            )
-                            .delete()
-                            .eq(
-                                "id",
-                                subscriptionRow.id
-                            );
-
-
-                    if(deleteError){
-
-                        console.error(
-                            "❌ Unable to remove expired subscription:",
-                            deleteError
-                        );
-
-                    }
-                    else{
-
-                        removed++;
-
-                    }
-
-                }
-
-            }
-
-        }
-
-
-        //==================================================
-        //          FINAL RESULT
-        //==================================================
-
-        return {
-
-            success:
-                true,
-
-            message:
-                "Push notification process completed.",
-
-            totalSubscriptions:
-                subscriptions.length,
-
-            sent:
-                sent,
-
-            failed:
-                failed,
-
-            removedExpired:
-                removed
-
-        };
-
-    }
-    catch(error){
+    if (error) {
 
         console.error(
-            "❌ Push notification process error:",
-            error
+            "❌ Failed to load push subscriptions:",
+            error.message
         );
 
 
@@ -825,12 +722,6 @@ async function sendNotificationToSubscribers(
 
             success:
                 false,
-
-            message:
-                "Unable to send push notifications.",
-
-            totalSubscriptions:
-                0,
 
             sent:
                 0,
@@ -848,22 +739,241 @@ async function sendNotificationToSubscribers(
 
     }
 
+
+    if (
+        !subscriptions ||
+        subscriptions.length === 0
+    ) {
+
+        console.log(
+            "ℹ️ No push subscriptions found."
+        );
+
+
+        return {
+
+            success:
+                true,
+
+            sent:
+                0,
+
+            failed:
+                0,
+
+            removedExpired:
+                0
+
+        };
+
+    }
+
+
+    let sent =
+        0;
+
+    let failed =
+        0;
+
+    let removedExpired =
+        0;
+
+
+    //==================================================
+    //              SEND NOTIFICATION
+    //==================================================
+
+    for (
+        const row of subscriptions
+    ) {
+
+        const subscription = {
+
+            endpoint:
+                row.endpoint,
+
+            keys: {
+
+                p256dh:
+                    row.p256dh,
+
+                auth:
+                    row.auth
+
+            }
+
+        };
+
+
+        //==================================================
+        //              VALIDATE SUBSCRIPTION
+        //==================================================
+
+        if (
+            !row.endpoint ||
+            !row.p256dh ||
+            !row.auth
+        ) {
+
+            console.log(
+                `⚠️ Invalid subscription skipped: ${row.id}`
+            );
+
+
+            failed++;
+
+            continue;
+
+        }
+
+
+        const result =
+            await sendPushNotification(
+                subscription,
+                notificationData
+            );
+
+
+        //==================================================
+        //              SUCCESS
+        //==================================================
+
+        if (
+            result.success
+        ) {
+
+            sent++;
+
+
+            console.log(
+                `✅ Push notification sent to: ${row.user_id}`
+            );
+
+
+            continue;
+
+        }
+
+
+        //==================================================
+        //              EXPIRED SUBSCRIPTION
+        //==================================================
+
+        if (
+            result.statusCode === 404 ||
+            result.statusCode === 410
+        ) {
+
+            console.log(
+                `🗑️ Removing expired subscription: ${row.id}`
+            );
+
+
+            const {
+                error:
+                    deleteError
+            } =
+                await supabase
+                    .from(
+                        "push_subscriptions"
+                    )
+                    .delete()
+                    .eq(
+                        "id",
+                        row.id
+                    );
+
+
+            if (deleteError) {
+
+                console.error(
+                    "❌ Failed to remove expired subscription:",
+                    deleteError.message
+                );
+
+            }
+            else {
+
+                removedExpired++;
+
+            }
+
+
+        }
+        else {
+
+            failed++;
+
+        }
+
+    }
+
+
+    console.log(
+        "=========================================="
+    );
+
+    console.log(
+        "Push notification process completed."
+    );
+
+    console.log(
+        `Total subscriptions: ${subscriptions.length}`
+    );
+
+    console.log(
+        `Sent: ${sent}`
+    );
+
+    console.log(
+        `Failed: ${failed}`
+    );
+
+    console.log(
+        `Removed expired: ${removedExpired}`
+    );
+
+    console.log(
+        "=========================================="
+    );
+
+
+    return {
+
+        success:
+            true,
+
+        totalSubscriptions:
+            subscriptions.length,
+
+        sent:
+            sent,
+
+        failed:
+            failed,
+
+        removedExpired:
+            removedExpired
+
+    };
+
 }
 
 
 //==================================================
-//          SEND TEST NOTIFICATION
+//              TEST PUSH NOTIFICATION
 //==================================================
 
 app.post(
     "/send-test-notification",
     async (req, res) => {
 
-        try{
+        try {
 
-            //==================================================
-            //          NOTIFICATION DATA
-            //==================================================
+            console.log(
+                "🧪 Test notification requested."
+            );
+
 
             const notificationData = {
 
@@ -871,10 +981,10 @@ app.post(
                     "TrendSphere Media",
 
                 body:
-                    "A new story has been published on TrendSphere Media.",
+                    "This is a test push notification from TrendSphere Media.",
 
                 message:
-                    "A new story has been published on TrendSphere Media.",
+                    "This is a test push notification from TrendSphere Media.",
 
                 icon:
                     "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
@@ -883,14 +993,12 @@ app.post(
                     "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
 
                 url:
-                    "/index.html"
+                    "/",
+
+                category:
+                    "general"
 
             };
-
-
-            console.log(
-                "🔔 Sending test push notification..."
-            );
 
 
             const result =
@@ -899,77 +1007,38 @@ app.post(
                 );
 
 
-            //==================================================
-            //          NO SUBSCRIBERS
-            //==================================================
-
-            if(
-                !result.success &&
-                result.totalSubscriptions === 0
-            ){
-
-                return res.status(404).json(
-                    result
-                );
-
-            }
-
-
-            //==================================================
-            //          SERVER ERROR
-            //==================================================
-
-            if(!result.success){
-
-                return res.status(500).json(
-                    result
-                );
-
-            }
-
-
-            //==================================================
-            //          SUCCESS RESPONSE
-            //==================================================
-
-            return res.json({
+            res.json({
 
                 success:
-                    true,
+                    result.success,
 
                 message:
-                    "Push notification process completed.",
+                    "Test notification process completed.",
 
-                totalSubscriptions:
-                    result.totalSubscriptions,
-
-                sent:
-                    result.sent,
-
-                failed:
-                    result.failed,
-
-                removedExpired:
-                    result.removedExpired
+                result:
+                    result
 
             });
 
+
         }
-        catch(error){
+        catch (error) {
 
             console.error(
-                "❌ Send test notification error:",
+                "❌ Test notification error:",
                 error
             );
 
 
-            return res.status(500).json({
+            res.status(
+                500
+            ).json({
 
                 success:
                     false,
 
                 message:
-                    "Unable to send push notifications.",
+                    "Test notification failed",
 
                 error:
                     error.message
@@ -983,32 +1052,33 @@ app.post(
 
 
 //==================================================
-//          NEWS PUSH HISTORY
+//              CHECK NEWS HISTORY
 //==================================================
-
-// Check whether an article has already been
-// successfully processed and sent.
 
 async function hasNewsBeenSent(
     articleUrl
-){
+) {
 
-    if(!articleUrl){
+    if (!articleUrl) {
 
         return false;
 
     }
 
 
-    try{
+    try {
 
         const {
             data,
             error
         } =
             await supabase
-                .from("news_push_history")
-                .select("id")
+                .from(
+                    "news_push_history"
+                )
+                .select(
+                    "id"
+                )
                 .eq(
                     "article_url",
                     articleUrl
@@ -1016,19 +1086,15 @@ async function hasNewsBeenSent(
                 .limit(1);
 
 
-        if(error){
+        if (error) {
 
             console.error(
-                "❌ Unable to check news push history:",
-                error
+                "❌ News history check error:",
+                error.message
             );
 
 
-            // IMPORTANT:
-            // If Supabase history cannot be checked,
-            // do NOT send the notification.
-
-            return true;
+            return false;
 
         }
 
@@ -1039,18 +1105,15 @@ async function hasNewsBeenSent(
         );
 
     }
-    catch(error){
+    catch (error) {
 
         console.error(
-            "❌ News push history check error:",
-            error
+            "❌ News history exception:",
+            error.message
         );
 
 
-        // Fail safe:
-        // Do not send if history cannot be verified.
-
-        return true;
+        return false;
 
     }
 
@@ -1058,60 +1121,63 @@ async function hasNewsBeenSent(
 
 
 //==================================================
-//          SAVE SENT NEWS ARTICLE
+//              SAVE NEWS HISTORY
 //==================================================
 
 async function saveNewsPushHistory(
     article,
     category = "general"
-){
+) {
 
-    if(
+    if (
         !article ||
         !article.url
-    ){
+    ) {
 
         return false;
 
     }
 
 
-    try{
+    try {
 
         const {
             error
         } =
             await supabase
-                .from("news_push_history")
+                .from(
+                    "news_push_history"
+                )
                 .upsert(
+
                     {
 
                         article_url:
                             article.url,
 
                         article_title:
-                            article.title ||
-                            null,
+                            article.title || "",
 
                         category:
-                            category ||
-                            "general"
+                            category
 
                     },
+
                     {
 
                         onConflict:
                             "article_url"
 
                     }
+
                 );
 
 
-        if(error){
+        if (error) {
 
             console.error(
-                "❌ Unable to save news push history:",
-                error
+                "❌ Failed to save news push history:",
+                error.message
             );
 
 
@@ -1121,19 +1187,18 @@ async function saveNewsPushHistory(
 
 
         console.log(
-            "💾 News article saved to push history:",
-            article.title
+            `💾 News article saved to push history: ${article.title}`
         );
 
 
         return true;
 
     }
-    catch(error){
+    catch (error) {
 
         console.error(
-            "❌ Save news push history error:",
-            error
+            "❌ News history save exception:",
+            error.message
         );
 
 
@@ -1145,77 +1210,55 @@ async function saveNewsPushHistory(
 
 
 //==================================================
-//          SEND NEWS PUSH NOTIFICATION
+//              MANUAL NEWS NOTIFICATION
 //==================================================
 
 app.post(
     "/send-news-notification",
     async (req, res) => {
 
-        try{
+        try {
 
-            //==================================================
-            //          GET NEWS DATA
-            //==================================================
-
-            const {
-
-                title,
-
-                message,
-
-                url,
-
-                category,
-
-                article
-
-            } = req.body;
+            const article =
+                req.body?.article;
 
 
-            //==================================================
-            //          VALIDATE NEWS DATA
-            //==================================================
+            const category =
+                req.body?.category ||
+                "general";
 
-            if(
-                !title ||
-                !message ||
-                !url
-            ){
 
-                return res.status(400).json({
+            if (
+                !article ||
+                !article.title ||
+                !article.url
+            ) {
+
+                return res.status(
+                    400
+                ).json({
 
                     success:
                         false,
 
                     message:
-                        "title, message and url are required."
+                        "Valid article data is required."
 
                 });
 
             }
 
 
-            console.log(
-                "📰 Preparing news notification:",
-                title
-            );
-
-
-            //==================================================
-            //          PREPARE PUSH DATA
-            //==================================================
-
             const notificationData = {
 
                 title:
-                    title,
+                    "New Story",
 
                 body:
-                    message,
+                    article.title,
 
                 message:
-                    message,
+                    article.title,
 
                 icon:
                     "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
@@ -1224,11 +1267,10 @@ app.post(
                     "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
 
                 url:
-                    url,
+                    "/news-details.html",
 
                 category:
-                    category ||
-                    "general",
+                    category,
 
                 article:
                     article
@@ -1236,116 +1278,57 @@ app.post(
             };
 
 
-            console.log(
-                "📢 Sending news notification..."
-            );
-
-
-            //==================================================
-            //          SEND TO ALL SUBSCRIBERS
-            //==================================================
-
-            const result =
+            const pushResult =
                 await sendNotificationToSubscribers(
                     notificationData
                 );
 
 
-            //==================================================
-            //          HANDLE SERVER ERROR
-            //==================================================
+            if (
+                pushResult.success &&
+                pushResult.sent > 0
+            ) {
 
-            if(!result.success){
-
-                if(
-                    result.totalSubscriptions === 0
-                ){
-
-                    return res.status(404).json(
-                        result
-                    );
-
-                }
-
-
-                return res.status(500).json(
-                    result
+                await saveNewsPushHistory(
+                    article,
+                    category
                 );
 
             }
 
 
-            //==================================================
-            //          FINAL RESPONSE
-            //==================================================
-
-            console.log(
-                "=========================================="
-            );
-
-            console.log(
-                "📰 News push notification process completed."
-            );
-
-            console.log(
-                `📢 Total subscribers: ${result.totalSubscriptions}`
-            );
-
-            console.log(
-                `✅ Sent: ${result.sent}`
-            );
-
-            console.log(
-                `❌ Failed: ${result.failed}`
-            );
-
-            console.log(
-                `🗑️ Removed expired: ${result.removedExpired}`
-            );
-
-            console.log(
-                "=========================================="
-            );
-
-
-            return res.json({
+            res.json({
 
                 success:
-                    true,
+                    pushResult.success,
 
                 message:
-                    "News push notification process completed.",
+                    "News notification process completed.",
 
-                totalSubscriptions:
-                    result.totalSubscriptions,
-
-                sent:
-                    result.sent,
-
-                failed:
-                    result.failed,
-
-                removedExpired:
-                    result.removedExpired
+                result:
+                    pushResult
 
             });
 
+
         }
-        catch(error){
+        catch (error) {
 
             console.error(
-                "❌ News push notification error:",
+                "❌ News notification error:",
                 error
             );
 
 
-            return res.status(500).json({
+            res.status(
+                500
+            ).json({
 
                 success:
                     false,
 
                 message:
-                    "Unable to send news push notification.",
+                    "News notification failed",
 
                 error:
                     error.message
@@ -1359,96 +1342,62 @@ app.post(
 
 
 //==================================================
-//          AUTOMATIC NEWS CHECKER
+//              AUTOMATIC NEWS CHECKER
+//==================================================
+//
+// RSS Server
+//     ↓
+// Push Server
+//     ↓
+// Check news_push_history
+//     ↓
+// New article?
+//     ↓
+// Send Web Push
+//
 //==================================================
 
-let newsCheckRunning =
-    false;
+async function checkForNewNews() {
+
+    console.log(
+        "=========================================="
+    );
+
+    console.log(
+        "🔎 Checking TrendSphere RSS Server for new stories..."
+    );
+
+    console.log(
+        "=========================================="
+    );
 
 
-//==================================================
-//          CHECK NEWS FROM NEWSAPI
-//==================================================
-
-async function checkForNewNews(){
-
-    //==================================================
-    //      PREVENT OVERLAPPING CHECKS
-    //==================================================
-
-    if(newsCheckRunning){
-
-        console.log(
-            "⏳ Previous news check is still running. Skipping this check."
-        );
-
-        return;
-
-    }
-
-
-    newsCheckRunning =
-        true;
-
-
-    try{
-
-        console.log(
-            "🔎 Checking NewsAPI for new stories..."
-        );
-
+    try {
 
         //==================================================
-        //          REQUEST NEWS
+        //              FETCH RSS NEWS
         //==================================================
-
-        const response =
-            await fetch(
-                `${NEWS_API_URL}&apiKey=${NEWS_API_KEY}`
-            );
-
-
-        if(!response.ok){
-
-            console.error(
-                "❌ NewsAPI request failed:",
-                response.status
-            );
-
-            return;
-
-        }
-
 
         const data =
-            await response.json();
-
-
-        //==================================================
-        //          CHECK NEWSAPI RESPONSE
-        //==================================================
-
-        if(
-            data.status !== "ok"
-        ){
-
-            console.error(
-                "❌ NewsAPI error:",
-                data.message
+            await fetchRSSNews(
+                RSS_NEWS_CATEGORY
             );
 
-            return;
 
-        }
+        const articles =
+            Array.isArray(
+                data.articles
+            )
+                ? data.articles
+                : [];
 
 
-        if(
-            !data.articles ||
-            data.articles.length === 0
-        ){
+        if (
+            articles.length === 0
+        ) {
 
             console.log(
-                "ℹ️ No news articles returned."
+                "ℹ️ RSS Server returned no articles."
             );
 
             return;
@@ -1456,34 +1405,23 @@ async function checkForNewNews(){
         }
 
 
-        console.log(
-            `📰 NewsAPI returned ${data.articles.length} article(s).`
-        );
-
-
         //==================================================
-        //          CHECK ARTICLES
+        //              FIND NEW ARTICLE
         //==================================================
 
-        for(
-            const article
-            of data.articles
-        ){
+        for (
+            const article of articles
+        ) {
 
-            if(
+            if (
                 !article ||
-                !article.url ||
-                !article.title
-            ){
+                !article.url
+            ) {
 
                 continue;
 
             }
 
-
-            //==================================================
-            //      PREVENT DUPLICATE PUSH
-            //==================================================
 
             const alreadySent =
                 await hasNewsBeenSent(
@@ -1491,20 +1429,22 @@ async function checkForNewNews(){
                 );
 
 
-            if(alreadySent){
-
-                console.log(
-                    "⏭️ Article already sent. Skipping:",
-                    article.title
-                );
+            if (
+                alreadySent
+            ) {
 
                 continue;
 
             }
 
 
+            console.log(
+                `🆕 New article detected: ${article.title}`
+            );
+
+
             //==================================================
-            //      PREPARE NOTIFICATION
+            //              NOTIFICATION DATA
             //==================================================
 
             const notificationData = {
@@ -1512,14 +1452,24 @@ async function checkForNewNews(){
                 title:
                     "New Story",
 
+                body:
+                    article.title,
+
                 message:
                     article.title,
+
+                icon:
+                    "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
+
+                badge:
+                    "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
 
                 url:
                     "/news-details.html",
 
                 category:
-                    "general",
+                    article.category ||
+                    RSS_NEWS_CATEGORY,
 
                 article:
                     article
@@ -1527,127 +1477,69 @@ async function checkForNewNews(){
             };
 
 
-            console.log(
-                "🆕 New article detected:",
-                article.title
-            );
-
-
             //==================================================
-            //      SEND NEWS PUSH DIRECTLY
+            //              SEND PUSH
             //==================================================
-            //
-            // IMPORTANT:
-            // We no longer use:
-            //
-            // http://localhost:3000/send-news-notification
-            //
-            // The server now calls the internal push function
-            // directly. This makes automatic notifications
-            // work correctly on Render.
-            //
 
             const pushResult =
                 await sendNotificationToSubscribers(
-                    {
-
-                        title:
-                            notificationData.title,
-
-                        body:
-                            notificationData.message,
-
-                        message:
-                            notificationData.message,
-
-                        icon:
-                            "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
-
-                        badge:
-                            "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
-
-                        url:
-                            notificationData.url,
-
-                        category:
-                            notificationData.category,
-
-                        article:
-                            notificationData.article
-
-                    }
+                    notificationData
                 );
 
 
             //==================================================
-            //      CHECK PUSH RESULT
+            //              SAVE HISTORY
             //==================================================
 
-            if(
+            if (
                 pushResult.success &&
                 pushResult.sent > 0
-            ){
-
-                //==================================================
-                //      SAVE ARTICLE TO SUPABASE HISTORY
-                //==================================================
+            ) {
 
                 const historySaved =
                     await saveNewsPushHistory(
                         article,
-                        "general"
+                        article.category ||
+                        RSS_NEWS_CATEGORY
                     );
 
 
-                if(historySaved){
+                if (
+                    historySaved
+                ) {
 
                     console.log(
-                        "✅ Automatic news push completed:",
-                        article.title
-                    );
-
-                }
-                else{
-
-                    console.warn(
-                        "⚠️ Push was sent, but article history could not be saved:",
-                        article.title
+                        `✅ Automatic news push completed: ${article.title}`
                     );
 
                 }
 
             }
-            else{
+            else {
 
                 console.log(
-                    "⚠️ News push was not delivered:",
-                    pushResult
+                    "ℹ️ Notification was not sent to any subscribers."
                 );
 
             }
 
 
             //==================================================
-            //      ONLY PROCESS ONE NEW STORY PER CHECK
+            //              ONLY ONE NEW STORY PER CHECK
             //==================================================
 
             break;
 
         }
 
+
     }
-    catch(error){
+    catch (error) {
 
         console.error(
-            "❌ Automatic news check error:",
-            error
+            "❌ Automatic RSS news checker error:",
+            error.message
         );
-
-    }
-    finally{
-
-        newsCheckRunning =
-            false;
 
     }
 
@@ -1655,18 +1547,28 @@ async function checkForNewNews(){
 
 
 //==================================================
-//          START AUTOMATIC NEWS CHECKER
+//              AUTOMATIC CHECK INTERVAL
 //==================================================
+
+// Check every 5 minutes.
+
+const NEWS_CHECK_INTERVAL =
+    5 * 60 * 1000;
+
 
 setInterval(
     checkForNewNews,
-    5 * 60 * 1000
+    NEWS_CHECK_INTERVAL
 );
 
 
 //==================================================
-//          INITIAL NEWS CHECK
+//              FIRST NEWS CHECK
 //==================================================
+
+// Wait 10 seconds after startup.
+//
+// This gives Render time to finish starting.
 
 setTimeout(
     checkForNewNews,
@@ -1699,6 +1601,14 @@ app.listen(
         );
 
         console.log(
+            `✅ RSS Server: ${RSS_SERVER_URL}`
+        );
+
+        console.log(
+            `✅ RSS category: ${RSS_NEWS_CATEGORY}`
+        );
+
+        console.log(
             "✅ Supabase push subscriptions enabled."
         );
 
@@ -1707,7 +1617,7 @@ app.listen(
         );
 
         console.log(
-            "✅ Automatic news checker enabled."
+            "✅ Automatic RSS news checker enabled."
         );
 
         console.log(
