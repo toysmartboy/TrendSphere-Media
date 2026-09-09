@@ -966,8 +966,19 @@ if(
 }
 
 
+
+
+
+
 //===============================================
 //              RELATED NEWS
+//              TrendSphere Media
+//              RSS VERSION
+//===============================================
+
+
+//===============================================
+//          RELATED NEWS ELEMENTS
 //===============================================
 
 const relatedContainer =
@@ -976,52 +987,769 @@ const relatedContainer =
     );
 
 
-const API_KEY =
-    "3c5da73095254cbcb55c6edeae277eae";
+const loadMoreRelated =
+    document.getElementById(
+        "load-more-related"
+    );
 
 
-async function fetchRelatedNews(){
+//===============================================
+//          RELATED NEWS SETTINGS
+//===============================================
 
-    if(!article){
+const RELATED_PER_LOAD = 6;
 
-        return;
+let relatedArticles = [];
+
+let relatedDisplayed = 0;
+
+
+//===============================================
+//          RSS SERVER
+//===============================================
+
+const RELATED_RSS_SERVER =
+    "https://trendsphere-rss.onrender.com";
+
+
+//===============================================
+//          RSS CATEGORY URLS
+//===============================================
+
+const RELATED_RSS_CATEGORIES = {
+
+    general:
+        `${RELATED_RSS_SERVER}/rss/general`,
+
+    technology:
+        `${RELATED_RSS_SERVER}/rss/technology`,
+
+    business:
+        `${RELATED_RSS_SERVER}/rss/business`,
+
+    sports:
+        `${RELATED_RSS_SERVER}/rss/sports`,
+
+    entertainment:
+        `${RELATED_RSS_SERVER}/rss/entertainment`,
+
+    celebrity:
+        `${RELATED_RSS_SERVER}/rss/celebrity`,
+
+    music:
+        `${RELATED_RSS_SERVER}/rss/music`,
+
+    lifestyle:
+        `${RELATED_RSS_SERVER}/rss/lifestyle`,
+
+    video:
+        `${RELATED_RSS_SERVER}/rss/video`
+
+};
+
+
+//===============================================
+//          RELATED NEWS CACHE
+//===============================================
+
+const RELATED_CACHE_TIME =
+    5 * 60 * 1000;
+
+
+const relatedCache =
+    new Map();
+
+
+//===============================================
+//          FETCH RSS DATA
+//===============================================
+
+async function fetchRelatedRSS(url){
+
+    if(!url){
+
+        return {
+            articles: []
+        };
+
+    }
+
+
+    const cached =
+        relatedCache.get(url);
+
+
+    if(
+        cached &&
+        Date.now() - cached.time <
+        RELATED_CACHE_TIME
+    ){
+
+        return cached.data;
+
     }
 
 
     try{
 
         const response =
-            await fetch(
-                `https://newsapi.org/v2/top-headlines?country=us&pageSize=20&apiKey=${API_KEY}`
+            await fetch(url);
+
+
+        if(!response.ok){
+
+            throw new Error(
+                `HTTP ${response.status}`
             );
+
+        }
 
 
         const data =
             await response.json();
 
 
-        if(data.status !== "ok"){
+        relatedCache.set(
+            url,
+            {
+                time:
+                    Date.now(),
 
-            console.error(
-                "Related News Error:",
-                data.code,
-                data.message
+                data:
+                    data
+            }
+        );
+
+
+        return data;
+
+    }
+    catch(error){
+
+        console.error(
+            "Related RSS fetch error:",
+            error
+        );
+
+
+        return {
+            articles: []
+        };
+
+    }
+
+}
+
+
+//===============================================
+//          NORMALIZE ARTICLE
+//===============================================
+
+function normalizeRelatedArticle(
+    article,
+    category
+){
+
+    if(!article){
+
+        return null;
+
+    }
+
+
+    return {
+
+        ...article,
+
+        category:
+            article.category ||
+            category,
+
+        url:
+            article.url ||
+            article.link ||
+            "",
+
+        urlToImage:
+            article.urlToImage ||
+            article.image ||
+            article.image_url ||
+            "",
+
+        publishedAt:
+            article.publishedAt ||
+            article.pubDate ||
+            article.published ||
+            "",
+
+        source:
+            article.source ||
+            {
+                name:
+                    article.source_name ||
+                    category
+            }
+
+    };
+
+}
+
+
+//===============================================
+//          GET CURRENT CATEGORY
+//===============================================
+
+function getRelatedCategory(){
+
+    if(!article){
+
+        return "general";
+
+    }
+
+
+    const category =
+        (
+            article.category ||
+            "general"
+        )
+        .toString()
+        .toLowerCase()
+        .trim();
+
+
+    if(
+        RELATED_RSS_CATEGORIES[
+            category
+        ]
+    ){
+
+        return category;
+
+    }
+
+
+    return "general";
+
+}
+
+
+//===============================================
+//          ARTICLE KEYWORDS
+//===============================================
+
+function getArticleKeywords(article){
+
+    if(!article){
+
+        return [];
+
+    }
+
+
+    const text = `
+
+        ${article.title || ""}
+
+        ${article.description || ""}
+
+    `;
+
+
+    const stopWords = new Set([
+
+        "the",
+        "and",
+        "for",
+        "with",
+        "that",
+        "this",
+        "from",
+        "have",
+        "has",
+        "will",
+        "are",
+        "was",
+        "were",
+        "been",
+        "into",
+        "about",
+        "after",
+        "before",
+        "over",
+        "under",
+        "than",
+        "their",
+        "they",
+        "them",
+        "your",
+        "you",
+        "its",
+        "his",
+        "her",
+        "how",
+        "what",
+        "when",
+        "where",
+        "who",
+        "why",
+        "news",
+        "latest"
+
+    ]);
+
+
+    return text
+        .toLowerCase()
+        .replace(
+            /[^a-z0-9\s]/g,
+            " "
+        )
+        .split(/\s+/)
+        .filter(
+            word =>
+                word.length >= 4 &&
+                !stopWords.has(word)
+        );
+
+}
+
+
+//===============================================
+//          RELATED ARTICLE SCORE
+//===============================================
+
+function calculateRelatedScore(
+    item,
+    currentArticle,
+    currentCategory,
+    keywords
+){
+
+    let score = 0;
+
+
+    const itemCategory =
+        (
+            item.category ||
+            ""
+        )
+        .toString()
+        .toLowerCase();
+
+
+    // Same category
+    if(
+        itemCategory ===
+        currentCategory
+    ){
+
+        score += 50;
+
+    }
+
+
+    const itemText = `
+
+        ${item.title || ""}
+
+        ${item.description || ""}
+
+    `
+        .toLowerCase();
+
+
+    // Keyword matching
+    keywords.forEach(
+        keyword => {
+
+            if(
+                itemText.includes(
+                    keyword
+                )
+            ){
+
+                score += 5;
+
+            }
+
+        }
+    );
+
+
+    // Same source
+    const currentSource =
+        (
+            currentArticle
+                ?.source
+                ?.name ||
+            currentArticle
+                ?.source ||
+            ""
+        )
+        .toString()
+        .toLowerCase();
+
+
+    const itemSource =
+        (
+            item
+                ?.source
+                ?.name ||
+            item
+                ?.source ||
+            ""
+        )
+        .toString()
+        .toLowerCase();
+
+
+    if(
+        currentSource &&
+        itemSource &&
+        currentSource ===
+        itemSource
+    ){
+
+        score += 10;
+
+    }
+
+
+    // Newer articles get a small boost
+    const publishedTime =
+        new Date(
+            item.publishedAt ||
+            item.pubDate ||
+            0
+        ).getTime();
+
+
+    if(
+        !Number.isNaN(
+            publishedTime
+        )
+    ){
+
+        const age =
+            Date.now() -
+            publishedTime;
+
+
+        const day =
+            24 * 60 * 60 * 1000;
+
+
+        if(age < day){
+
+            score += 5;
+
+        }
+
+    }
+
+
+    return score;
+
+}
+
+
+//===============================================
+//          FETCH RELATED NEWS
+//===============================================
+
+async function fetchRelatedNews(){
+
+    if(!article){
+
+        console.warn(
+            "No selected article found for related news."
+        );
+
+        return;
+
+    }
+
+
+    if(!relatedContainer){
+
+        return;
+
+    }
+
+
+    //===========================================
+    //          LOADING STATE
+    //===========================================
+
+    relatedContainer.innerHTML = `
+
+        <div class="related-loading">
+
+            <i class="bx bx-loader-alt bx-spin"></i>
+
+            <span>
+                Loading related news...
+            </span>
+
+        </div>
+
+    `;
+
+
+    if(loadMoreRelated){
+
+        loadMoreRelated.style.display =
+            "none";
+
+    }
+
+
+    try{
+
+        const currentCategory =
+            getRelatedCategory();
+
+
+        const currentUrl =
+            article.url ||
+            article.link ||
+            "";
+
+
+        const keywords =
+            getArticleKeywords(
+                article
             );
 
+
+        //=======================================
+        //          FETCH ALL RSS CATEGORIES
+        //=======================================
+
+        const categoryEntries =
+            Object.entries(
+                RELATED_RSS_CATEGORIES
+            );
+
+
+        const results =
+            await Promise.all(
+
+                categoryEntries.map(
+                    async ([category, url]) => {
+
+                        const data =
+                            await fetchRelatedRSS(
+                                url
+                            );
+
+
+                        if(
+                            !data ||
+                            !Array.isArray(
+                                data.articles
+                            )
+                        ){
+
+                            return [];
+
+                        }
+
+
+                        return data.articles.map(
+                            item =>
+                                normalizeRelatedArticle(
+                                    item,
+                                    category
+                                )
+                        );
+
+                    }
+                )
+
+            );
+
+
+        //=======================================
+        //          COMBINE ARTICLES
+        //=======================================
+
+        let allArticles =
+            results
+                .flat()
+                .filter(
+                    item =>
+                        item &&
+                        item.url
+                );
+
+
+        //=======================================
+        //          REMOVE CURRENT ARTICLE
+        //=======================================
+
+        allArticles =
+            allArticles.filter(
+                item =>
+                    item.url !==
+                    currentUrl
+            );
+
+
+        //=======================================
+        //          REMOVE DUPLICATES
+        //=======================================
+
+        const uniqueArticles =
+            new Map();
+
+
+        allArticles.forEach(
+            item => {
+
+                const key =
+                    item.url ||
+                    item.title;
+
+
+                if(
+                    key &&
+                    !uniqueArticles.has(
+                        key
+                    )
+                ){
+
+                    uniqueArticles.set(
+                        key,
+                        item
+                    );
+
+                }
+
+            }
+        );
+
+
+        allArticles =
+            Array.from(
+                uniqueArticles.values()
+            );
+
+
+        //=======================================
+        //          SCORE ARTICLES
+        //=======================================
+
+        allArticles =
+            allArticles.map(
+                item => ({
+
+                    ...item,
+
+                    relatedScore:
+                        calculateRelatedScore(
+                            item,
+                            article,
+                            currentCategory,
+                            keywords
+                        )
+
+                })
+            );
+
+
+        //=======================================
+        //          SORT RELATED NEWS
+        //=======================================
+
+        allArticles.sort(
+            (a, b) => {
+
+                if(
+                    b.relatedScore !==
+                    a.relatedScore
+                ){
+
+                    return (
+                        b.relatedScore -
+                        a.relatedScore
+                    );
+
+                }
+
+
+                const dateA =
+                    new Date(
+                        a.publishedAt ||
+                        a.pubDate ||
+                        0
+                    ).getTime();
+
+
+                const dateB =
+                    new Date(
+                        b.publishedAt ||
+                        b.pubDate ||
+                        0
+                    ).getTime();
+
+
+                return dateB - dateA;
+
+            }
+        );
+
+
+        //=======================================
+        //          SAVE RESULTS
+        //=======================================
+
+        relatedArticles =
+            allArticles;
+
+
+        relatedDisplayed =
+            0;
+
+
+        //=======================================
+        //          NO RESULTS
+        //=======================================
+
+        if(
+            relatedArticles.length === 0
+        ){
+
+            relatedContainer.innerHTML = `
+
+                <div class="related-empty">
+
+                    <i class="bx bx-news"></i>
+
+                    <p>
+                        No related news available.
+                    </p>
+
+                    <span>
+                        Check back later for more stories.
+                    </span>
+
+                </div>
+
+            `;
+
+
             return;
+
         }
 
 
-        const related =
-            data.articles.filter(
-                item =>
-                    item.url !== article.url
-            );
+        //=======================================
+        //          DISPLAY FIRST 6
+        //=======================================
 
-
-        displayRelatedNews(
-            related
-        );
+        displayMoreRelatedNews();
 
     }
     catch(error){
@@ -1031,46 +1759,24 @@ async function fetchRelatedNews(){
             error
         );
 
-    }
 
-}
+        relatedContainer.innerHTML = `
 
+            <div class="related-empty">
 
-fetchRelatedNews();
+                <i class="bx bx-error-circle"></i>
 
+                <p>
+                    Unable to load related news.
+                </p>
 
-//===============================================
-//          DISPLAY RELATED NEWS
-//===============================================
+                <span>
+                    Please try again later.
+                </span>
 
-let relatedArticles = [];
+            </div>
 
-let relatedDisplayed = 0;
-
-const RELATED_PER_LOAD = 6;
-
-
-const loadMoreRelated =
-    document.getElementById(
-        "load-more-related"
-    );
-
-
-function displayRelatedNews(news){
-
-    relatedArticles =
-        news;
-
-    relatedDisplayed =
-        0;
-
-
-    if(relatedContainer){
-
-        relatedContainer.innerHTML =
-            "";
-
-        displayMoreRelatedNews();
+        `;
 
     }
 
@@ -1086,16 +1792,40 @@ function displayMoreRelatedNews(){
     if(!relatedContainer){
 
         return;
+
     }
 
 
     const nextArticles =
         relatedArticles.slice(
+
             relatedDisplayed,
+
             relatedDisplayed +
             RELATED_PER_LOAD
+
         );
 
+
+    if(
+        nextArticles.length === 0
+    ){
+
+        if(loadMoreRelated){
+
+            loadMoreRelated.style.display =
+                "none";
+
+        }
+
+        return;
+
+    }
+
+
+    //===========================================
+    //          CREATE ARTICLE CARDS
+    //===========================================
 
     nextArticles.forEach(
         item => {
@@ -1106,19 +1836,37 @@ function displayMoreRelatedNews(){
                 );
 
 
-            relatedContainer.innerHTML +=
+            const image =
+                item.urlToImage ||
+                "./assets/Images/no-image.png";
 
-            `<article class="related-card">
+
+            const source =
+                item.source?.name ||
+                item.source ||
+                "News";
+
+
+            const title =
+                item.title ||
+                "Untitled Article";
+
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+
+            card.className =
+                "related-card";
+
+
+            card.innerHTML = `
 
                 <img
-                    src="${
-                        item.urlToImage ||
-                        "./assets/Images/no-image.png"
-                    }"
-                    alt="${
-                        item.title ||
-                        "News"
-                    }"
+                    src="${image}"
+                    alt="${title}"
                     loading="lazy"
                     onerror="
                         this.onerror=null;
@@ -1129,17 +1877,11 @@ function displayMoreRelatedNews(){
                 <div class="related-content">
 
                     <span>
-                        ${
-                            item.source?.name ||
-                            "News"
-                        }
+                        ${source}
                     </span>
 
                     <h3>
-                        ${
-                            item.title ||
-                            "Untitled Article"
-                        }
+                        ${title}
                     </h3>
 
                     <a
@@ -1152,7 +1894,12 @@ function displayMoreRelatedNews(){
 
                 </div>
 
-            </article>`;
+            `;
+
+
+            relatedContainer.appendChild(
+                card
+            );
 
         }
     );
@@ -1166,7 +1913,7 @@ function displayMoreRelatedNews(){
     //          READ MORE BUTTONS
     //===========================================
 
-    document
+    relatedContainer
         .querySelectorAll(
             ".related-read-more"
         )
@@ -1195,6 +1942,7 @@ function displayMoreRelatedNews(){
                         if(!selectedArticle){
 
                             return;
+
                         }
 
 
@@ -1210,12 +1958,13 @@ function displayMoreRelatedNews(){
 
 
     //===========================================
-    //          LOAD MORE BUTTON
+    //          UPDATE LOAD MORE
     //===========================================
 
     if(!loadMoreRelated){
 
         return;
+
     }
 
 
@@ -1239,17 +1988,42 @@ function displayMoreRelatedNews(){
 
 
 //===============================================
-//          LOAD MORE RELATED NEWS
+//          LOAD MORE RELATED NEWS BUTTON
 //===============================================
 
 if(loadMoreRelated){
 
     loadMoreRelated.addEventListener(
         "click",
-        displayMoreRelatedNews
+        () => {
+
+            displayMoreRelatedNews();
+
+        }
     );
 
 }
+
+
+//===============================================
+//          START RELATED NEWS
+//===============================================
+
+fetchRelatedNews();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //===============================================

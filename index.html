@@ -126,203 +126,508 @@
     <!-- =====================================================
          HEADER
     ====================================================== -->
-    <header class="header" id="header">
-        <nav class="navbar container">
-            <!-- LOGO -->
+
+
+<header class="header" id="header">
+
+    <!-- =====================================================
+         TOP HEADER
+    ====================================================== -->
+
+    <div class="header-top">
+
+        <div class="navbar container">
+
+            <!-- =================================================
+                 LOGO
+            ================================================== -->
+
             <div class="logo-container-wrap">
+
                 <div class="logo">
-                    <img src="assets/Images/Logos/TrendSphere Media Logo logo.png" alt="TrendSphere Media Logo" class="logo-1">
-                    <a href="index.html"> TrendSphere Media </a>
+
+                    <img
+                        src="assets/Images/Logos/TrendSphere Media Logo logo.png"
+                        alt="TrendSphere Media Logo"
+                        class="logo-1"
+                    >
+
+                    <a href="index.html">
+                        TrendSphere Media
+                    </a>
+
                 </div>
+
             </div>
-        </nav>
-        <!-- =================================================
-             NAVIGATION LINKS
-        ================================================== -->
-        <ul class="nav-links" id="nav-links">
-            <li>
-                <a href="#home" class="active"> 
-                    Home
-                </a>
-            </li>
-            <li>
-                <a href="#trending">
-                    Trending News
-                </a>
-            </li>
-            <li>
-                <a href="#latest">
-                    Latest News
-                </a>
-            </li>
-            <li>
-                <a href="#entertainment">
-                    Entertainment
-                </a>
-            </li>
-            <li>
-                <a href="#sports">
-                    Sports
-                </a>
-            </li>
-            <li>
-                <a href="#technology">
-                    Technology
-                </a>
-            </li>
-            <li>
-                <a href="save-articles.html" class="saved-nav-link">
+
+
+            <!-- =================================================
+                 NAVIGATION ICONS
+            ================================================== -->
+
+            <div class="nav-icons">
+
+                <!-- SEARCH -->
+
+                <i
+                    class="bx bx-search"
+                    id="open-search"
+                    role="button"
+                    aria-label="Search"
+                    title="Search"
+                ></i>
+
+
+                <!-- SAVED ARTICLES -->
+
+                <a
+                    href="save-articles.html"
+                    class="saved-nav-icon"
+                    aria-label="Saved Articles"
+                    title="Saved Articles"
+                >
+
                     <i class="bx bx-bookmark"></i>
-                    Saved
+
+                    <span
+                        id="saved-nav-count"
+                        class="saved-nav-count"
+                    >
+                        0
+                    </span>
+
                 </a>
-            </li>
-            <li>
-                <a href="#newsletter">
-                    Newsletter
+
+
+                <!-- READING HISTORY -->
+
+                <a
+                    href="reading-history.html"
+                    class="history-nav-icon"
+                    aria-label="Reading History"
+                    title="Reading History"
+                >
+
+                    <i class="bx bx-history"></i>
+
+                    <span
+                        id="history-nav-count"
+                        class="history-nav-count hidden"
+                    >
+                        0
+                    </span>
+
                 </a>
-            </li>
-        </ul>
-        <!-- =================================================
-             NAVIGATION ICONS
-        ================================================== -->
-        <div class="nav-icons">
-            <!-- SEARCH -->
-            <i class="bx bx-search" id="open-search" role="button" aria-label="Search" title="Search"></i>
-            <!-- SAVED ARTICLES -->
-            <a href="save-articles.html" class="saved-nav-icon" aria-label="Saved Articles" title="Saved Articles">
-                <i class="bx bx-bookmark"></i>
-                <span id="saved-nav-count" class="saved-nav-count">
-                    0
-                </span>
-            </a>
-            <!-- READING HISTORY -->
-            <a href="reading-history.html" class="history-nav-icon" aria-label="Reading History" title="Reading History">
-                <i class="bx bx-history"></i>
-                <span id="history-nav-count" class="history-nav-count hidden">
-                    0
-                </span>
-            </a>
-            <!-- =================================================
-                 NOTIFICATIONS
-            ================================================== -->
-            <button type="button" id="notification-btn" class="notification-nav-icon" aria-label="Notifications" title="Notifications">
-                <i class="bx bx-bell"></i>
-                <span id="notification-count" class="notification-count hidden">
-                    0
-                </span>
-            </button>
-            <!-- =================================================
-                 NOTIFICATION PANEL
-            ================================================== -->
-            <div id="notification-panel" class="notification-panel">
-                <div class="notification-panel-header">
-                    <div>
-                        <h3>
-                            Notifications
-                        </h3>
-                        <span id="notification-summary">
-                            Your latest updates
-                        </span>
-                    </div>
-                    <button type="button" id="close-notification" aria-label="Close notifications">
-                        <i class="bx bx-x"></i>
-                    </button>
-                </div>
-                <div id="notification-list" class="notification-list"></div>
-                <div class="notification-panel-footer">
-                    <button type="button" id="clear-notifications">
-                        <i class="bx bx-check-double"></i>
-                        Mark as Read
-                    </button>
-                    <button type="button" id="enable-push-notifications" class="enable-push-notifications">
-                        <i class="bx bx-bell"></i>
-                        Enable Notifications
-                    </button>
-                </div>
-            </div>
-            <!-- DARK MODE -->
-            <i class="bx bx-moon" id="dark-mode-btn" role="button" aria-label="Toggle dark mode" title="Dark Mode"></i>
-            <!-- MENU -->
-            <button class="menu-toggle" type="button" aria-label="Open navigation menu">
-                <i class="bx bx-menu" id="menu-btn"></i>
-            </button>
-            <!-- =================================================
-                 USER ACCOUNT
-            ================================================== -->
-            <div class="account-nav" id="account-nav">
-                <button type="button" id="account-btn" class="account-nav-btn" aria-label="User Account" title="User Account">
-                    <i class="bx bx-user"></i>
+
+
+                <!-- =================================================
+                     NOTIFICATIONS
+                ================================================== -->
+
+                <button
+                    type="button"
+                    id="notification-btn"
+                    class="notification-nav-icon"
+                    aria-label="Notifications"
+                    title="Notifications"
+                >
+
+                    <i class="bx bx-bell"></i>
+
+                    <span
+                        id="notification-count"
+                        class="notification-count hidden"
+                    >
+                        0
+                    </span>
+
                 </button>
-                <!-- ACCOUNT MENU -->
-                <div id="account-menu" class="account-menu">
-                    <div class="account-menu-header">
-                        <div class="account-avatar">
-                            <i class="bx bx-user"></i>
-                        </div>
+
+
+                <!-- =================================================
+                     NOTIFICATION PANEL
+                ================================================== -->
+
+                <div
+                    id="notification-panel"
+                    class="notification-panel"
+                >
+
+                    <div class="notification-panel-header">
+
                         <div>
-                            <strong id="account-name">
-                                Guest
-                            </strong>
-                            <span id="account-email">
-                                Not signed in
+
+                            <h3>
+                                Notifications
+                            </h3>
+
+                            <span id="notification-summary">
+                                Your latest updates
                             </span>
+
                         </div>
+
+                        <button
+                            type="button"
+                            id="close-notification"
+                            aria-label="Close notifications"
+                        >
+
+                            <i class="bx bx-x"></i>
+
+                        </button>
+
                     </div>
-                    <div class="account-menu-divider"></div>
-                    <!-- SIGN IN -->
-                    <a href="login.html" id="account-login" class="account-menu-item">
-                        <i class="bx bx-log-in"></i>
-                        <span>
-                            Sign In
-                        </span>
-                    </a>
-                    <!-- CREATE ACCOUNT -->
-                    <a href="register.html" id="account-register" class="account-menu-item">
-                        <i class="bx bx-user-plus"></i>
-                        <span>
-                            Create Account
-                        </span>
-                    </a>
-                    <!-- PROFILE -->
-                    <a href="profile.html" id="account-profile" class="account-menu-item hidden">
-                        <i class="bx bx-user-circle"></i>
-                        <span>
-                            My Profile
-                        </span>
-                    </a>
-                    <!-- ADMIN MESSAGES -->
-                    <a href="admin-messages.html" id="account-admin-messages" class="account-menu-item -menu-item hidden">
-                        <i class="bx bx-envelope"></i>
-                        <span>
-                            Admin Messages
-                        </span>
-                    </a>
-                    <!-- SAVED ARTICLES -->
-                    <a href="save-articles.html" class="account-menu-item">
-                        <i class="bx bx-bookmark"></i>
-                        <span>
-                            Saved Articles
-                        </span>
-                    </a>
-                    <!-- READING HISTORY -->
-                    <a href="reading-history.html" class="account-menu-item">
-                        <i class="bx bx-history"></i>
-                        <span> 
-                            Reading History
-                        </span>
-                    </a>
-                    <div class="account-menu-divider"></div>
-                    <!-- LOGOUT -->
-                    <button type="button" id="account-logout" class="account-menu-item account-logout  hidden">
-                        <i class="bx bx-log-out"></i>
-                        <span>
-                            Sign Out
-                        </span>
-                    </button>
+
+
+                    <div
+                        id="notification-list"
+                        class="notification-list"
+                    ></div>
+
+
+                    <div class="notification-panel-footer">
+
+                        <button
+                            type="button"
+                            id="clear-notifications"
+                        >
+
+                            <i class="bx bx-check-double"></i>
+
+                            Mark as Read
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            id="enable-push-notifications"
+                            class="enable-push-notifications"
+                        >
+
+                            <i class="bx bx-bell"></i>
+
+                            Enable Notifications
+
+                        </button>
+
+                    </div>
+
                 </div>
+
+
+                <!-- DARK MODE -->
+
+                <i
+                    class="bx bx-moon"
+                    id="dark-mode-btn"
+                    role="button"
+                    aria-label="Toggle dark mode"
+                    title="Dark Mode"
+                ></i>
+
+
+                <!-- MENU -->
+
+                <button
+                    class="menu-toggle"
+                    type="button"
+                    aria-label="Open navigation menu"
+                >
+
+                    <i
+                        class="bx bx-menu"
+                        id="menu-btn"
+                    ></i>
+
+                </button>
+
+
+                <!-- =================================================
+                     USER ACCOUNT
+                ================================================== -->
+
+                <div
+                    class="account-nav"
+                    id="account-nav"
+                >
+
+                    <button
+                        type="button"
+                        id="account-btn"
+                        class="account-nav-btn"
+                        aria-label="User Account"
+                        title="User Account"
+                    >
+
+                        <i class="bx bx-user"></i>
+
+                    </button>
+
+
+                    <!-- ACCOUNT MENU -->
+
+                    <div
+                        id="account-menu"
+                        class="account-menu"
+                    >
+
+                        <div class="account-menu-header">
+
+                            <div class="account-avatar">
+
+                                <i class="bx bx-user"></i>
+
+                            </div>
+
+                            <div>
+
+                                <strong id="account-name">
+                                    Guest
+                                </strong>
+
+                                <span id="account-email">
+                                    Not signed in
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="account-menu-divider"></div>
+
+
+                        <!-- SIGN IN -->
+
+                        <a
+                            href="login.html"
+                            id="account-login"
+                            class="account-menu-item"
+                        >
+
+                            <i class="bx bx-log-in"></i>
+
+                            <span>
+                                Sign In
+                            </span>
+
+                        </a>
+
+
+                        <!-- CREATE ACCOUNT -->
+
+                        <a
+                            href="register.html"
+                            id="account-register"
+                            class="account-menu-item"
+                        >
+
+                            <i class="bx bx-user-plus"></i>
+
+                            <span>
+                                Create Account
+                            </span>
+
+                        </a>
+
+
+                        <!-- PROFILE -->
+
+                        <a
+                            href="profile.html"
+                            id="account-profile"
+                            class="account-menu-item hidden"
+                        >
+
+                            <i class="bx bx-user-circle"></i>
+
+                            <span>
+                                My Profile
+                            </span>
+
+                        </a>
+
+
+                        <!-- ADMIN MESSAGES -->
+
+                        <a
+                            href="admin-messages.html"
+                            id="account-admin-messages"
+                            class="account-menu-item -menu-item hidden"
+                        >
+
+                            <i class="bx bx-envelope"></i>
+
+                            <span>
+                                Admin Messages
+                            </span>
+
+                        </a>
+
+
+                        <!-- SAVED ARTICLES -->
+
+                        <a
+                            href="save-articles.html"
+                            class="account-menu-item"
+                        >
+
+                            <i class="bx bx-bookmark"></i>
+
+                            <span>
+                                Saved Articles
+                            </span>
+
+                        </a>
+
+
+                        <!-- READING HISTORY -->
+
+                        <a
+                            href="reading-history.html"
+                            class="account-menu-item"
+                        >
+
+                            <i class="bx bx-history"></i>
+
+                            <span>
+                                Reading History
+                            </span>
+
+                        </a>
+
+
+                        <div class="account-menu-divider"></div>
+
+
+                        <!-- LOGOUT -->
+
+                        <button
+                            type="button"
+                            id="account-logout"
+                            class="account-menu-item account-logout hidden"
+                        >
+
+                            <i class="bx bx-log-out"></i>
+
+                            <span>
+                                Sign Out
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
-    </header>
+
+    </div>
+
+
+    <!-- =====================================================
+         CATEGORY NAVIGATION
+    ====================================================== -->
+
+    <div class="category-nav">
+
+        <div class="category-nav-container container">
+
+            <ul
+                class="nav-links"
+                id="nav-links"
+            >
+
+                <li>
+                    <a
+                        href="#home"
+                        class="active"
+                    >
+                        Home
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#latest">
+                        News
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#trending">
+                        Trending
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#entertainment">
+                        Entertainment
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#celebrity">
+                        Celebrity
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#music">
+                        Music
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#sports">
+                        Sports
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#technology">
+                        Technology
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#business">
+                        Business
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#lifestyle">
+                        Lifestyle
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#videos">
+                        Videos
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#newsletter">
+                        Newsletter
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+
+
 
     <!-- =====================================================
          MAIN CONTENT
@@ -744,6 +1049,68 @@
         </section>
 
 
+        <!--==================================================
+                CELEBRITY NEWS
+==================================================-->
+
+<section
+    id="celebrity"
+    class="celebrity section reveal"
+>
+    <div class="container">
+
+        <div class="section-title">
+            <h2>Celebrity</h2>
+            <p>Latest celebrity news, entertainment and updates.</p>
+        </div>
+
+        <div
+            class="celebrity-container"
+            id="celebrity-news"
+        ></div>
+
+    </div>
+</section>
+
+
+
+
+<!-- MUSIC SECTION -->
+
+<section
+    id="music"
+    class="music section reveal"
+>
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>Music</h2>
+
+            <p>
+                Latest music news, artists, releases and entertainment updates.
+            </p>
+
+        </div>
+
+
+        <div
+            class="music-container"
+            id="music-news"
+        ></div>
+
+    </div>
+
+</section>
+
+
+
+
+
+
+
+
         <!-- =================================================
              SPORTS
         ================================================== -->
@@ -810,6 +1177,102 @@
             </div>
 
         </section>
+
+
+
+
+
+<!-- BUSINESS SECTION -->
+
+<section
+    id="business"
+    class="business section reveal"
+>
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>Business</h2>
+
+            <p>
+                Latest business, finance, economy and market news.
+            </p>
+
+        </div>
+
+
+        <div
+            class="business-container"
+            id="business-news"
+        ></div>
+
+    </div>
+
+</section>
+
+
+
+
+<!-- LIFESTYLE SECTION -->
+
+<section
+    id="lifestyle"
+    class="lifestyle section reveal"
+>
+
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>Lifestyle</h2>
+
+            <p>
+                Latest lifestyle, health, travel, food and culture updates.
+            </p>
+
+        </div>
+
+
+        <div
+            class="lifestyle-container"
+            id="lifestyle-news"
+        ></div>
+
+    </div>
+
+</section>
+
+
+
+
+<!-- VIDEO SECTION -->
+
+<section
+    id="video"
+    class="video section reveal"
+>
+    <div class="container">
+
+        <div class="section-title">
+
+            <h2>
+                Latest Videos
+            </h2>
+
+            <p>
+                 Watch the latest news, interviews, explainers and updates from around the world.
+            </p>
+
+        </div>
+
+        <div
+            class="video-container"
+            id="video-news"
+        ></div>
+
+    </div>
+</section>
 
 
         <!-- =================================================
@@ -1473,6 +1936,67 @@
         </div>
 
     </div>
+
+
+
+<!-- ==========================================
+          VIDEO PLAYER MODAL
+========================================== -->
+
+<div
+    class="video-modal"
+    id="video-modal"
+    aria-hidden="true"
+>
+
+    <div class="video-modal-overlay"></div>
+
+    <div class="video-modal-content">
+
+        <button
+            class="video-modal-close"
+            id="video-modal-close"
+            type="button"
+            aria-label="Close video"
+        >
+            &times;
+        </button>
+
+        <div class="video-player">
+
+            <iframe
+                id="video-iframe"
+                src=""
+                title="TrendSphere Video Player"
+                allow="
+                    accelerometer;
+                    autoplay;
+                    clipboard-write;
+                    encrypted-media;
+                    gyroscope;
+                    picture-in-picture;
+                    web-share
+                "
+                allowfullscreen
+            ></iframe>
+
+        </div>
+
+        <div class="video-modal-info">
+
+            <h3 id="video-modal-title">
+                Video
+            </h3>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
 </body>
 <!-- SUPABASE LIBRARY -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
