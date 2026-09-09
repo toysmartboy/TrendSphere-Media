@@ -1,4 +1,3 @@
-
 //==================================================
 //              TRENDSPHERE MEDIA
 //              PUSH NOTIFICATION SERVER
@@ -109,10 +108,6 @@ if(
 }
 
 
-
-
-
-
 //==================================================
 //              NEWS API CONFIGURATION
 //==================================================
@@ -139,12 +134,6 @@ const NEWS_API_URL =
 console.log(
     "✅ TrendSphere NewsAPI configuration loaded successfully."
 );
-
-
-
-
-
-
 
 
 //==================================================
@@ -181,11 +170,29 @@ catch(error){
 }
 
 
+//==================================================
+//              HEALTH CHECK
+//==================================================
 
+app.get(
+    "/",
+    (req, res) => {
 
+        res.json({
 
+            success:
+                true,
 
+            message:
+                "TrendSphere Push Server is running.",
 
+            service:
+                "TrendSphere Media Push Notifications"
+
+        });
+
+    }
+);
 
 
 //==================================================
@@ -383,37 +390,6 @@ app.get(
 );
 
 
-
-
-
-
-
-
-//==================================================
-//              HEALTH CHECK
-//==================================================
-
-app.get(
-    "/",
-    (req, res) => {
-
-        res.json({
-
-            success:
-                true,
-
-            message:
-                "TrendSphere Push Server is running.",
-
-            service:
-                "TrendSphere Media Push Notifications"
-
-        });
-
-    }
-);
-
-
 //==================================================
 //          TEST SUPABASE CONNECTION
 //==================================================
@@ -561,6 +537,321 @@ async function sendPushNotification(
 
 
 //==================================================
+//          SEND NOTIFICATION TO ALL SUBSCRIBERS
+//==================================================
+
+async function sendNotificationToSubscribers(
+    notificationData
+){
+
+    try{
+
+        //==================================================
+        //          GET ALL SUBSCRIPTIONS
+        //==================================================
+
+        const {
+            data: subscriptions,
+            error
+        } =
+            await supabase
+                .from("push_subscriptions")
+                .select(
+                    "id,user_id,endpoint,p256dh,auth"
+                );
+
+
+        if(error){
+
+            console.error(
+                "❌ Unable to get push subscriptions:",
+                error
+            );
+
+
+            return {
+
+                success:
+                    false,
+
+                message:
+                    "Unable to get push subscriptions.",
+
+                totalSubscriptions:
+                    0,
+
+                sent:
+                    0,
+
+                failed:
+                    0,
+
+                removedExpired:
+                    0,
+
+                error:
+                    error.message
+
+            };
+
+        }
+
+
+        //==================================================
+        //          CHECK SUBSCRIPTIONS
+        //==================================================
+
+        if(
+            !subscriptions ||
+            subscriptions.length === 0
+        ){
+
+            return {
+
+                success:
+                    false,
+
+                message:
+                    "No push subscriptions found.",
+
+                totalSubscriptions:
+                    0,
+
+                sent:
+                    0,
+
+                failed:
+                    0,
+
+                removedExpired:
+                    0
+
+            };
+
+        }
+
+
+        let sent =
+            0;
+
+        let failed =
+            0;
+
+        let removed =
+            0;
+
+
+        //==================================================
+        //          SEND TO EVERY SUBSCRIBER
+        //==================================================
+
+        for(
+            const subscriptionRow
+            of subscriptions
+        ){
+
+            //==================================================
+            //      VALIDATE SUBSCRIPTION
+            //==================================================
+
+            if(
+                !subscriptionRow.endpoint ||
+                !subscriptionRow.p256dh ||
+                !subscriptionRow.auth
+            ){
+
+                console.warn(
+                    "⚠️ Invalid push subscription:",
+                    subscriptionRow.id
+                );
+
+                failed++;
+
+                continue;
+
+            }
+
+
+            //==================================================
+            //      CREATE PUSH SUBSCRIPTION
+            //==================================================
+
+            const pushSubscription = {
+
+                endpoint:
+                    subscriptionRow.endpoint,
+
+                keys: {
+
+                    p256dh:
+                        subscriptionRow.p256dh,
+
+                    auth:
+                        subscriptionRow.auth
+
+                }
+
+            };
+
+
+            //==================================================
+            //      SEND PUSH
+            //==================================================
+
+            const result =
+                await sendPushNotification(
+                    pushSubscription,
+                    notificationData
+                );
+
+
+            //==================================================
+            //      SUCCESS
+            //==================================================
+
+            if(result.success){
+
+                sent++;
+
+
+                console.log(
+                    "✅ Push notification sent to:",
+                    subscriptionRow.user_id
+                );
+
+            }
+
+
+            //==================================================
+            //      FAILED
+            //==================================================
+
+            else{
+
+                failed++;
+
+
+                const statusCode =
+                    result.error?.statusCode;
+
+
+                //==================================================
+                //      REMOVE EXPIRED SUBSCRIPTION
+                //==================================================
+
+                if(
+                    statusCode === 404 ||
+                    statusCode === 410
+                ){
+
+                    console.log(
+                        "🗑️ Removing expired push subscription:",
+                        subscriptionRow.id
+                    );
+
+
+                    const {
+                        error:
+                            deleteError
+                    } =
+                        await supabase
+                            .from(
+                                "push_subscriptions"
+                            )
+                            .delete()
+                            .eq(
+                                "id",
+                                subscriptionRow.id
+                            );
+
+
+                    if(deleteError){
+
+                        console.error(
+                            "❌ Unable to remove expired subscription:",
+                            deleteError
+                        );
+
+                    }
+                    else{
+
+                        removed++;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+        //==================================================
+        //          FINAL RESULT
+        //==================================================
+
+        return {
+
+            success:
+                true,
+
+            message:
+                "Push notification process completed.",
+
+            totalSubscriptions:
+                subscriptions.length,
+
+            sent:
+                sent,
+
+            failed:
+                failed,
+
+            removedExpired:
+                removed
+
+        };
+
+    }
+    catch(error){
+
+        console.error(
+            "❌ Push notification process error:",
+            error
+        );
+
+
+        return {
+
+            success:
+                false,
+
+            message:
+                "Unable to send push notifications.",
+
+            totalSubscriptions:
+                0,
+
+            sent:
+                0,
+
+            failed:
+                0,
+
+            removedExpired:
+                0,
+
+            error:
+                error.message
+
+        };
+
+    }
+
+}
+
+
+//==================================================
 //          SEND TEST NOTIFICATION
 //==================================================
 
@@ -569,67 +860,6 @@ app.post(
     async (req, res) => {
 
         try{
-
-            //==================================================
-            //          GET ALL SUBSCRIPTIONS
-            //==================================================
-
-            const {
-                data: subscriptions,
-                error
-            } =
-                await supabase
-                    .from("push_subscriptions")
-                    .select(
-                        "id,user_id,endpoint,p256dh,auth"
-                    );
-
-
-            if(error){
-
-                console.error(
-                    "❌ Unable to get push subscriptions:",
-                    error
-                );
-
-
-                return res.status(500).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "Unable to get push subscriptions.",
-
-                    error:
-                        error.message
-
-                });
-
-            }
-
-
-            //==================================================
-            //          CHECK SUBSCRIPTIONS
-            //==================================================
-
-            if(
-                !subscriptions ||
-                subscriptions.length === 0
-            ){
-
-                return res.status(404).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "No push subscriptions found."
-
-                });
-
-            }
-
 
             //==================================================
             //          NOTIFICATION DATA
@@ -658,150 +888,48 @@ app.post(
             };
 
 
-            let sent =
-                0;
-
-            let failed =
-                0;
-
-            let removed =
-                0;
+            console.log(
+                "🔔 Sending test push notification..."
+            );
 
 
-            //==================================================
-            //          SEND TO EVERY SUBSCRIBER
-            //==================================================
-
-            for(
-                const subscriptionRow
-                of subscriptions
-            ){
-
-                console.log(
-                    "Supabase endpoint ending:",
-                    subscriptionRow.endpoint.slice(-20)
+            const result =
+                await sendNotificationToSubscribers(
+                    notificationData
                 );
 
-                //==================================================
-                //      VALIDATE SUBSCRIPTION
-                //==================================================
 
-                if(
-                    !subscriptionRow.endpoint ||
-                    !subscriptionRow.p256dh ||
-                    !subscriptionRow.auth
-                ){
+            //==================================================
+            //          NO SUBSCRIBERS
+            //==================================================
 
-                    console.warn(
-                        "⚠️ Invalid push subscription:",
-                        subscriptionRow.id
-                    );
+            if(
+                !result.success &&
+                result.totalSubscriptions === 0
+            ){
 
-                    failed++;
-
-                    continue;
-
-                }
-
-
-                const pushSubscription = {
-
-                    endpoint:
-                        subscriptionRow.endpoint,
-
-                    keys: {
-
-                        p256dh:
-                            subscriptionRow.p256dh,
-
-                        auth:
-                            subscriptionRow.auth
-
-                    }
-
-                };
-
-
-                const result =
-                    await sendPushNotification(
-                        pushSubscription,
-                        notificationData
-                    );
-
-
-                if(result.success){
-
-                    sent++;
-
-
-                    console.log(
-                        "✅ Push notification sent to:",
-                        subscriptionRow.user_id
-                    );
-
-                }
-                else{
-
-                    failed++;
-
-
-                    //==================================================
-                    //      REMOVE EXPIRED SUBSCRIPTION
-                    //==================================================
-
-                    const statusCode =
-                        result.error?.statusCode;
-
-
-                    if(
-                        statusCode === 404 ||
-                        statusCode === 410
-                    ){
-
-                        console.log(
-                            "🗑️ Removing expired push subscription:",
-                            subscriptionRow.id
-                        );
-
-
-                        const {
-                            error:
-                                deleteError
-                        } =
-                            await supabase
-                                .from(
-                                    "push_subscriptions"
-                                )
-                                .delete()
-                                .eq(
-                                    "id",
-                                    subscriptionRow.id
-                                );
-
-
-                        if(deleteError){
-
-                            console.error(
-                                "Unable to remove expired subscription:",
-                                deleteError
-                            );
-
-                        }
-                        else{
-
-                            removed++;
-
-                        }
-
-                    }
-
-                }
+                return res.status(404).json(
+                    result
+                );
 
             }
 
 
             //==================================================
-            //          RESPONSE
+            //          SERVER ERROR
+            //==================================================
+
+            if(!result.success){
+
+                return res.status(500).json(
+                    result
+                );
+
+            }
+
+
+            //==================================================
+            //          SUCCESS RESPONSE
             //==================================================
 
             return res.json({
@@ -813,16 +941,16 @@ app.post(
                     "Push notification process completed.",
 
                 totalSubscriptions:
-                    subscriptions.length,
+                    result.totalSubscriptions,
 
                 sent:
-                    sent,
+                    result.sent,
 
                 failed:
-                    failed,
+                    result.failed,
 
                 removedExpired:
-                    removed
+                    result.removedExpired
 
             });
 
@@ -854,15 +982,6 @@ app.post(
 );
 
 
-
-
-
-
-//==================================================
-//          AUTOMATIC NEWS CHECKER
-//==================================================
-
-
 //==================================================
 //          NEWS PUSH HISTORY
 //==================================================
@@ -870,11 +989,14 @@ app.post(
 // Check whether an article has already been
 // successfully processed and sent.
 
-async function hasNewsBeenSent(articleUrl){
+async function hasNewsBeenSent(
+    articleUrl
+){
 
     if(!articleUrl){
 
         return false;
+
     }
 
 
@@ -901,10 +1023,13 @@ async function hasNewsBeenSent(articleUrl){
                 error
             );
 
+
             // IMPORTANT:
             // If Supabase history cannot be checked,
             // do NOT send the notification.
+
             return true;
+
         }
 
 
@@ -921,9 +1046,12 @@ async function hasNewsBeenSent(articleUrl){
             error
         );
 
+
         // Fail safe:
         // Do not send if history cannot be verified.
+
         return true;
+
     }
 
 }
@@ -944,6 +1072,7 @@ async function saveNewsPushHistory(
     ){
 
         return false;
+
     }
 
 
@@ -985,7 +1114,9 @@ async function saveNewsPushHistory(
                 error
             );
 
+
             return false;
+
         }
 
 
@@ -1005,10 +1136,234 @@ async function saveNewsPushHistory(
             error
         );
 
+
         return false;
+
     }
 
 }
+
+
+//==================================================
+//          SEND NEWS PUSH NOTIFICATION
+//==================================================
+
+app.post(
+    "/send-news-notification",
+    async (req, res) => {
+
+        try{
+
+            //==================================================
+            //          GET NEWS DATA
+            //==================================================
+
+            const {
+
+                title,
+
+                message,
+
+                url,
+
+                category,
+
+                article
+
+            } = req.body;
+
+
+            //==================================================
+            //          VALIDATE NEWS DATA
+            //==================================================
+
+            if(
+                !title ||
+                !message ||
+                !url
+            ){
+
+                return res.status(400).json({
+
+                    success:
+                        false,
+
+                    message:
+                        "title, message and url are required."
+
+                });
+
+            }
+
+
+            console.log(
+                "📰 Preparing news notification:",
+                title
+            );
+
+
+            //==================================================
+            //          PREPARE PUSH DATA
+            //==================================================
+
+            const notificationData = {
+
+                title:
+                    title,
+
+                body:
+                    message,
+
+                message:
+                    message,
+
+                icon:
+                    "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
+
+                badge:
+                    "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
+
+                url:
+                    url,
+
+                category:
+                    category ||
+                    "general",
+
+                article:
+                    article
+
+            };
+
+
+            console.log(
+                "📢 Sending news notification..."
+            );
+
+
+            //==================================================
+            //          SEND TO ALL SUBSCRIBERS
+            //==================================================
+
+            const result =
+                await sendNotificationToSubscribers(
+                    notificationData
+                );
+
+
+            //==================================================
+            //          HANDLE SERVER ERROR
+            //==================================================
+
+            if(!result.success){
+
+                if(
+                    result.totalSubscriptions === 0
+                ){
+
+                    return res.status(404).json(
+                        result
+                    );
+
+                }
+
+
+                return res.status(500).json(
+                    result
+                );
+
+            }
+
+
+            //==================================================
+            //          FINAL RESPONSE
+            //==================================================
+
+            console.log(
+                "=========================================="
+            );
+
+            console.log(
+                "📰 News push notification process completed."
+            );
+
+            console.log(
+                `📢 Total subscribers: ${result.totalSubscriptions}`
+            );
+
+            console.log(
+                `✅ Sent: ${result.sent}`
+            );
+
+            console.log(
+                `❌ Failed: ${result.failed}`
+            );
+
+            console.log(
+                `🗑️ Removed expired: ${result.removedExpired}`
+            );
+
+            console.log(
+                "=========================================="
+            );
+
+
+            return res.json({
+
+                success:
+                    true,
+
+                message:
+                    "News push notification process completed.",
+
+                totalSubscriptions:
+                    result.totalSubscriptions,
+
+                sent:
+                    result.sent,
+
+                failed:
+                    result.failed,
+
+                removedExpired:
+                    result.removedExpired
+
+            });
+
+        }
+        catch(error){
+
+            console.error(
+                "❌ News push notification error:",
+                error
+            );
+
+
+            return res.status(500).json({
+
+                success:
+                    false,
+
+                message:
+                    "Unable to send news push notification.",
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+);
+
+
+//==================================================
+//          AUTOMATIC NEWS CHECKER
+//==================================================
+
+let newsCheckRunning =
+    false;
 
 
 //==================================================
@@ -1016,6 +1371,25 @@ async function saveNewsPushHistory(
 //==================================================
 
 async function checkForNewNews(){
+
+    //==================================================
+    //      PREVENT OVERLAPPING CHECKS
+    //==================================================
+
+    if(newsCheckRunning){
+
+        console.log(
+            "⏳ Previous news check is still running. Skipping this check."
+        );
+
+        return;
+
+    }
+
+
+    newsCheckRunning =
+        true;
+
 
     try{
 
@@ -1107,32 +1481,26 @@ async function checkForNewNews(){
             }
 
 
-            
             //==================================================
-//      PREVENT DUPLICATE PUSH
-//==================================================
+            //      PREVENT DUPLICATE PUSH
+            //==================================================
 
-const alreadySent =
-    await hasNewsBeenSent(
-        article.url
-    );
-
-
-if(alreadySent){
-
-    console.log(
-        "⏭️ Article already sent. Skipping:",
-        article.title
-    );
-
-    continue;
-
-}
+            const alreadySent =
+                await hasNewsBeenSent(
+                    article.url
+                );
 
 
+            if(alreadySent){
 
+                console.log(
+                    "⏭️ Article already sent. Skipping:",
+                    article.title
+                );
 
+                continue;
 
+            }
 
 
             //==================================================
@@ -1166,89 +1534,94 @@ if(alreadySent){
 
 
             //==================================================
-            //      SEND NEWS PUSH
+            //      SEND NEWS PUSH DIRECTLY
+            //==================================================
+            //
+            // IMPORTANT:
+            // We no longer use:
+            //
+            // http://localhost:3000/send-news-notification
+            //
+            // The server now calls the internal push function
+            // directly. This makes automatic notifications
+            // work correctly on Render.
+            //
+
+            const pushResult =
+                await sendNotificationToSubscribers(
+                    {
+
+                        title:
+                            notificationData.title,
+
+                        body:
+                            notificationData.message,
+
+                        message:
+                            notificationData.message,
+
+                        icon:
+                            "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
+
+                        badge:
+                            "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
+
+                        url:
+                            notificationData.url,
+
+                        category:
+                            notificationData.category,
+
+                        article:
+                            notificationData.article
+
+                    }
+                );
+
+
+            //==================================================
+            //      CHECK PUSH RESULT
             //==================================================
 
-            try{
+            if(
+                pushResult.success &&
+                pushResult.sent > 0
+            ){
 
-                const pushResponse =
-                    await fetch(
-                        "http://localhost:3000/send-news-notification",
-                        {
+                //==================================================
+                //      SAVE ARTICLE TO SUPABASE HISTORY
+                //==================================================
 
-                            method:
-                                "POST",
-
-                            headers: {
-
-                                "Content-Type":
-                                    "application/json"
-
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    notificationData
-                                )
-
-                        }
+                const historySaved =
+                    await saveNewsPushHistory(
+                        article,
+                        "general"
                     );
 
 
-                const pushResult =
-                    await pushResponse.json();
-
-
-                if(
-    pushResponse.ok &&
-    pushResult.success &&
-    pushResult.sent > 0
-){
-
-    //==================================================
-    //      SAVE ARTICLE TO SUPABASE HISTORY
-    //==================================================
-
-    const historySaved =
-        await saveNewsPushHistory(
-            article,
-            "general"
-        );
-
-
-    if(historySaved){
-
-        console.log(
-            "✅ Automatic news push completed:",
-            article.title
-        );
-
-    }
-    else{
-
-        console.warn(
-            "⚠️ Push was sent, but article history could not be saved:",
-            article.title
-        );
-
-    }
-
-}
-                else{
+                if(historySaved){
 
                     console.log(
-                        "⚠️ News push was not delivered:",
-                        pushResult
+                        "✅ Automatic news push completed:",
+                        article.title
+                    );
+
+                }
+                else{
+
+                    console.warn(
+                        "⚠️ Push was sent, but article history could not be saved:",
+                        article.title
                     );
 
                 }
 
             }
-            catch(pushError){
+            else{
 
-                console.error(
-                    "❌ Unable to send automatic news push:",
-                    pushError
+                console.log(
+                    "⚠️ News push was not delivered:",
+                    pushResult
                 );
 
             }
@@ -1269,6 +1642,12 @@ if(alreadySent){
             "❌ Automatic news check error:",
             error
         );
+
+    }
+    finally{
+
+        newsCheckRunning =
+            false;
 
     }
 
@@ -1293,14 +1672,6 @@ setTimeout(
     checkForNewNews,
     10000
 );
-
-
-
-
-
-
-
-
 
 
 //==================================================
@@ -1336,419 +1707,16 @@ app.listen(
         );
 
         console.log(
+            "✅ Automatic news checker enabled."
+        );
+
+        console.log(
+            "⏱️ News check interval: 5 minutes"
+        );
+
+        console.log(
             "=========================================="
         );
 
     }
 );
-
-
-
-
-
-
-
-
-
-//==================================================
-//          SEND NEWS PUSH NOTIFICATION
-//==================================================
-
-app.post(
-    "/send-news-notification",
-    async (req, res) => {
-
-        try{
-
-            //==================================================
-            //          GET NEWS DATA FROM WEBSITE
-            //==================================================
-
-            const {
-                title,
-                message,
-                url,
-                category,
-                article
-            } = req.body;
-
-
-            //==================================================
-            //          VALIDATE NEWS DATA
-            //==================================================
-
-            if(
-                !title ||
-                !message ||
-                !url
-            ){
-
-                return res.status(400).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "title, message and url are required."
-
-                });
-
-            }
-
-             console.log(
-                "📰 Preparing news notification:",
-                title
-            );
-
-            //==================================================
-            //          GET ALL SUBSCRIPTIONS
-            //==================================================
-
-            const {
-                data: subscriptions,
-                error
-            } =
-                await supabase
-                    .from("push_subscriptions")
-                    .select(
-                        "id,user_id,endpoint,p256dh,auth"
-                    );
-
-
-            if(error){
-
-                console.error(
-                    "❌ Unable to get push subscriptions:",
-                    error
-                );
-
-
-                return res.status(500).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "Unable to get push subscriptions.",
-
-                    error:
-                        error.message
-
-                });
-
-            }
-
-
-            //==================================================
-            //          CHECK SUBSCRIPTIONS
-            //==================================================
-
-            if(
-                !subscriptions ||
-                subscriptions.length === 0
-            ){
-
-                return res.status(404).json({
-
-                    success:
-                        false,
-
-                    message:
-                        "No push subscriptions found.",
-
-                        totalSubscriptions:
-                            0,
-
-                        sent:
-                            0,
-
-                        failed:
-                            0
-                });
-            }
-
-            //==================================================
-            //          PREPARE PUSH DATA
-            //==================================================
-
-            const notificationData = {
-
-                title:
-                    title,
-
-                body:
-                    message,
-
-                message:
-                    message,
-
-                icon:
-                    "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
-
-                badge:
-                    "/assets/Images/icons/TrendSphere Media Logo ICON.jpg",
-
-                url:
-                    url,
-
-                category:
-                    category ||
-                    "general",
-
-                article:
-                    article
-
-            };
-
-
-            console.log(
-                "📢 Sending news notification to:",
-                subscriptions.length,
-                "subscriber(s)"
-            );
-
-
-            let sent =
-                0;
-
-            let failed =
-                0;
-
-            let removed =
-                0;
-
-            
-
-            //==================================================
-            //          SEND TO ALL SUBSCRIBERS
-            //==================================================
-
-            for(
-                const subscriptionRow
-                of subscriptions
-            ){
-
-                //==================================================
-                //      VALIDATE SUBSCRIPTION
-                //==================================================
-
-                if(
-                    !subscriptionRow.endpoint ||
-                    !subscriptionRow.p256dh ||
-                    !subscriptionRow.auth
-                ){
-
-                    console.warn(
-                        "⚠️ Invalid subscription:",
-                        subscriptionRow.id
-                    );
-
-                    failed++;
-
-                    continue;
-
-                }
-
-
-            //==================================================
-                //      CREATE PUSH SUBSCRIPTION
-                //==================================================
-
-                const pushSubscription = {
-
-                    endpoint:
-                        subscriptionRow.endpoint,
-
-                    keys: {
-
-                        p256dh:
-                            subscriptionRow.p256dh,
-
-                        auth:
-                            subscriptionRow.auth
-
-                    }
-
-                };
-
-
-             //==================================================
-                //      SEND PUSH
-                //==================================================
-
-                const result =
-                    await sendPushNotification(
-                        pushSubscription,
-                        notificationData
-                    );
-
-
-                //==================================================
-                //      SUCCESS
-                //==================================================
-
-                if(result.success){
-
-                    sent++;
-
-
-                    console.log(
-                        "✅ News push sent to:",
-                        subscriptionRow.user_id
-                    );
-
-                }
-
-            
-             //==================================================
-                //      FAILED
-                //==================================================
-
-                else{
-
-                    failed++;
-
-
-                    const statusCode =
-                        result.error?.statusCode;
-
-
-                    //==================================================
-                    //      REMOVE EXPIRED SUBSCRIPTION
-                    //==================================================
-
-                    if(
-                        statusCode === 404 ||
-                        statusCode === 410
-                    ){
-
-                        console.log(
-                            "🗑️ Removing expired subscription:",
-                            subscriptionRow.id
-                        );
-
-
-                        const {
-
-                            error:
-                                deleteError
-
-                        } =
-                            await supabase
-                                .from(
-                                    "push_subscriptions"
-                                )
-                                .delete()
-                                .eq(
-                                    "id",
-                                    subscriptionRow.id
-                                );
-
-
-                        if(deleteError){
-
-                            console.error(
-                                "❌ Unable to remove expired subscription:",
-                                deleteError
-                            );
-
-                        }
-                        else{
-
-                            removed++;
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-
-
-
-            //==================================================
-            //          FINAL RESPONSE
-            //==================================================
-
-            console.log(
-                "=========================================="
-            );
-
-            console.log(
-                "📰 News push notification process completed."
-            );
-
-            console.log(
-                `📢 Total subscribers: ${subscriptions.length}`
-            );
-
-            console.log(
-                `✅ Sent: ${sent}`
-            );
-
-            console.log(
-                `❌ Failed: ${failed}`
-            );
-
-            console.log(
-                `🗑️ Removed expired: ${removed}`
-            );
-
-            console.log(
-                "=========================================="
-            );
-
-
-            return res.json({
-
-                success:
-                    true,
-
-                message:
-                    "News push notification process completed.",
-
-                totalSubscriptions:
-                    subscriptions.length,
-
-                sent:
-                    sent,
-
-                failed:
-                    failed,
-
-                removedExpired:
-                    removed
-
-            });
-
-            }
-        catch(error){
-
-            console.error(
-                "❌ News push notification error:",
-                error
-            );
-
-
-            return res.status(500).json({
-
-                success:
-                    false,
-
-                message:
-                    "Unable to send news push notification.",
-
-                error:
-                    error.message
-
-            });
-
-        }
-
-    }
-);
-
-
-            
