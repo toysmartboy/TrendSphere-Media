@@ -13,7 +13,7 @@
 //==================================================
 
 const PUSH_SERVER_URL =
-    "http://localhost:3000";
+    "https://trendsphere-push-server.onrender.com";
 
 
 // IMPORTANT:
