@@ -11705,7 +11705,7 @@ img{
 
 .legal-page{
 
-    padding: 30px 50px 0;
+    padding: 40px;
 
 }
 
@@ -11764,7 +11764,7 @@ img{
 
     max-width: 850px;
 
-    margin: 0 auto;
+    padding: 40px 20px;
 
 }
 
@@ -11949,6 +11949,7 @@ img{
     max-width: 1100px;
 
     margin: 0 auto;
+    padding: 40px 30px;
 
 }
 
