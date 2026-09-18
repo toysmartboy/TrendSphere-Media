@@ -22,7 +22,13 @@ const app = express();
 
 const PORT = process.env.PORT || 4000;
 
-const parser = new Parser();
+const parser = new Parser({
+    customFields: {
+        item: [
+            ["media:thumbnail", "media:thumbnail"]
+        ]
+    }
+});
 
 
 //==================================================
@@ -185,148 +191,60 @@ app.get(
 
 function getArticleImage(item) {
 
-    //==================================================
-    //              DIRECT IMAGE FIELDS
-    //==================================================
+    // BBC RSS media:thumbnail
+    if (item["media:thumbnail"]) {
 
-    if (
-        item.enclosure &&
-        item.enclosure.url
-    ) {
+        const thumbnail = item["media:thumbnail"];
 
+        // rss-parser may return the element as:
+        // { $: { url: "..." } }
+        if (thumbnail.$ && thumbnail.$.url) {
+            return thumbnail.$.url;
+        }
+
+        // Or as an array
+        if (
+            Array.isArray(thumbnail) &&
+            thumbnail.length > 0
+        ) {
+            const first = thumbnail[0];
+
+            if (first && first.$ && first.$.url) {
+                return first.$.url;
+            }
+
+            if (first && first.url) {
+                return first.url;
+            }
+        }
+
+        // Direct object
+        if (thumbnail.url) {
+            return thumbnail.url;
+        }
+    }
+
+    // Other possible RSS image fields
+    if (item.enclosure && item.enclosure.url) {
         return item.enclosure.url;
-
     }
-
-
-    //==================================================
-    //              MEDIA CONTENT
-    //==================================================
-
-    if (
-        item.media &&
-        item.media.content &&
-        item.media.content.url
-    ) {
-
-        return item.media.content.url;
-
-    }
-
-
-    //==================================================
-    //              MEDIA THUMBNAIL
-    //==================================================
 
     if (
         item.media &&
         item.media.thumbnail &&
         item.media.thumbnail.url
     ) {
-
         return item.media.thumbnail.url;
-
     }
-
-
-    //==================================================
-    //              RSS MEDIA FIELDS
-    //==================================================
 
     if (
         item["media:content"] &&
         item["media:content"].url
     ) {
-
         return item["media:content"].url;
-
     }
-
-
-    if (
-        item["media:thumbnail"] &&
-        item["media:thumbnail"].url
-    ) {
-
-        return item["media:thumbnail"].url;
-
-    }
-
-
-    //==================================================
-    //              IMAGE OBJECT
-    //==================================================
-
-    if (
-        item.image &&
-        item.image.url
-    ) {
-
-        return item.image.url;
-
-    }
-
-
-    //==================================================
-    //              CONTENT IMAGE
-    //==================================================
-
-    const htmlContent =
-        item["content:encoded"] ||
-        item.content ||
-        item.description ||
-        "";
-
-    if (htmlContent) {
-
-        try {
-
-            const $ =
-                cheerio.load(
-                    htmlContent
-                );
-
-            const image =
-                $("img").first();
-
-            if (
-                image.length &&
-                image.attr("src")
-            ) {
-
-                return image.attr("src");
-
-            }
-
-            if (
-                image.length &&
-                image.attr("data-src")
-            ) {
-
-                return image.attr("data-src");
-
-            }
-
-        }
-
-        catch (error) {
-
-            console.log(
-                "Image extraction error:",
-                error.message
-            );
-
-        }
-
-    }
-
-
-    //==================================================
-    //              NO IMAGE FOUND
-    //==================================================
 
     return "";
-
 }
 
 
@@ -592,20 +510,12 @@ const articles =
 
 
                 //==================================================
-                //      FETCH IMAGE FROM ARTICLE PAGE
+                //      DO NOT FETCH ARTICLE PAGE FOR IMAGE
                 //==================================================
 
-                if (
-                    !image &&
-                    item.link
-                ) {
-
-                    image =
-                        await getArticlePageImage(
-                            item.link
-                        );
-
-                }
+                // Keep the image already provided by the RSS feed.
+                // This avoids making an additional request
+                // to every BBC article page.
 
 
                 return {
