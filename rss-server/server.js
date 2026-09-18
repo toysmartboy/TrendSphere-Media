@@ -199,7 +199,7 @@ function getArticleImage(item) {
         // rss-parser may return the element as:
         // { $: { url: "..." } }
         if (thumbnail.$ && thumbnail.$.url) {
-            return thumbnail.$.url;
+            return thumbnail.$.url.replace("/240/", "/640/");
         }
 
         // Or as an array
@@ -210,17 +210,17 @@ function getArticleImage(item) {
             const first = thumbnail[0];
 
             if (first && first.$ && first.$.url) {
-                return first.$.url;
+                return first.$.url.replace("/240/", "/640/");
             }
 
             if (first && first.url) {
-                return first.url;
+                return first.url.replace("/240/", "/640/");
             }
         }
 
         // Direct object
-        if (thumbnail.url) {
-            return thumbnail.url;
+       if (thumbnail.url) {
+            return thumbnail.url.replace("/240/", "/640/");
         }
     }
 
